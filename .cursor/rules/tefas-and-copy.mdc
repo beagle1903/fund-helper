@@ -1,0 +1,25 @@
+---
+description: TEFAS client isolation and no-advice explanation copy
+globs: "**/*Tefas*.{kt,kts},**/*Explanation*.{kt,kts}"
+alwaysApply: false
+---
+
+# TEFAS client and copy
+
+- Call current `https://www.tefas.gov.tr/api/funds/...` JSON. The old `BindHistory*` API is retired — do not use it.
+- Do not scrape HTML. Prefer a browser-like `User-Agent` on first implementation.
+- Refresh **followed funds only**. Search is on demand. Respect that TEFAS is rate-limited and may serve Akamai challenges.
+- Isolate all HTTP inside `TefasClient`. If the phone is blocked, swap this type only; `FundRepository` and UI stay.
+- Tests must fake `TefasClient`. Never hit live TEFAS from unit tests.
+
+`ExplanationMapper` is a pure map from official fields (type, risk, fees, and similar) to short Turkish sentences.
+
+```kotlin
+// ❌ BAD
+"Bu fonu alın; düşük riskli ve getirisi yüksek."
+
+// ✅ GOOD
+"Fonun resmi türü hisse senedi fonu. Risk değeri TEFAS kaydındaki skorudur. Bu açıklama yatırım tavsiyesi değildir."
+```
+
+No buy/sell, no target price, no “size uygun”, no holdings/TL. If a field is missing, say so — do not invent it.

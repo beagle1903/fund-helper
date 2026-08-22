@@ -1,0 +1,27 @@
+---
+description: Kotlin and Jetpack Compose conventions for fund-helper
+globs: "**/*.{kt,kts}"
+alwaysApply: false
+---
+
+# Kotlin / Compose
+
+- One module. UI is Compose. DI is Hilt.
+- Screens and ViewModels talk only to `FundRepository`. Never import Room, Retrofit/OkHttp/Ktor, or `TefasClient` from UI.
+- ViewModels expose immutable UI state (`StateFlow` / data class). Keep side effects (refresh, follow) as explicit functions.
+- Default copy and `res/values` strings are Turkish. Include “yatırım tavsiyesi değildir” on fund detail.
+- On error: keep last cache, snackbar + retry. Never clear follows because a call failed.
+
+```kotlin
+// ❌ BAD — UI depends on the HTTP client
+class WatchlistViewModel @Inject constructor(
+    private val tefas: TefasClient,
+)
+
+// ✅ GOOD — UI depends on the repository
+class WatchlistViewModel @Inject constructor(
+    private val funds: FundRepository,
+)
+```
+
+Fetch Compose, Hilt, Room, and Gradle DSL from Context7. Do not guess APIs.

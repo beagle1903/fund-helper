@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -42,20 +43,24 @@ class OkHttpTefasClient @Inject constructor(
     }
 
     private suspend fun post(url: String, jsonBody: String): String = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", TefasEndpoints.USER_AGENT)
-            .header("Accept", "application/json, text/plain, */*")
-            .header("Origin", TefasEndpoints.ORIGIN)
-            .header("Referer", TefasEndpoints.REFERER)
-            .post(jsonBody.toRequestBody(JSON))
-            .build()
-        http.newCall(request).execute().use { response ->
-            val body = response.body?.string().orEmpty()
-            if (!response.isSuccessful) {
-                throw TefasFetchException("HTTP ${response.code}")
+        try {
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", TefasEndpoints.USER_AGENT)
+                .header("Accept", "application/json, text/plain, */*")
+                .header("Origin", TefasEndpoints.ORIGIN)
+                .header("Referer", TefasEndpoints.REFERER)
+                .post(jsonBody.toRequestBody(JSON))
+                .build()
+            http.newCall(request).execute().use { response ->
+                val body = response.body?.string().orEmpty()
+                if (!response.isSuccessful) {
+                    throw TefasFetchException("HTTP ${response.code}")
+                }
+                body
             }
-            body
+        } catch (e: IOException) {
+            throw TefasFetchException("Network error: ${e.message}", e)
         }
     }
 

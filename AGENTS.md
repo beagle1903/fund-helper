@@ -9,9 +9,14 @@ Follow this progressive disclosure map for context:
 4. Current state: read `progress.md`.
 5. Current assignment: read the latest files under `docs/superpowers/specs/` and `docs/superpowers/plans/` if they exist.
 
+Durable facts (also in `docs/context.md`):
+1. v1 is a follow-only TEFAS watchlist, not a chat consultant.
+2. No buy/sell advice; Turkish explanations map official fields only.
+3. Local-only; no backend or accounts in v1.
+4. Sideload APK on Samsung A23 first; Play Store is later.
+5. UI talks only to `FundRepository`; swap `TefasClient` if the phone cannot reach TEFAS.
+
 Session rules:
 - Do not write implementation details in this file. Keep it as a short map/router.
 - When finishing a session, update `progress.md` with a pruned handoff (what works on the A23, blockers). Do not let it become a diary.
 - When writing Compose, Hilt, Room, OkHttp/Ktor, or Play Gradle DSL, fetch current docs via Context7. Do not guess APIs from training data.
-- UI talks only to `FundRepository`. If TEFAS is unreachable, swap `TefasClient` only.
-- Never give buy/sell advice. Turkish explanations map official fields only. Include “yatırım tavsiyesi değildir”.

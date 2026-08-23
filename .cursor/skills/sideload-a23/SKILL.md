@@ -1,6 +1,6 @@
 ---
 name: sideload-a23
-description: Assemble the debug APK and sideload it onto the Samsung Galaxy A23 over USB. Use when assembling, installing, putting the app on the phone, running adb install, or verifying the fund-helper package on device.
+description: Assemble the debug APK and sideload it onto the Samsung Galaxy A23 over USB. Use when assembling, installing, sideloading, targeting the A23, putting the app on the phone, running adb install, or verifying the fund-helper package on device.
 ---
 
 # Sideload fund-helper onto the A23
@@ -32,7 +32,7 @@ Expect the A23 listed as `device`, not `unauthorized`.
 ## 3. Install (replace existing debug build)
 
 ```powershell
-adb install -r app\build\outputs\apk\debug\app-debug.apk
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ## 4. Confirm package

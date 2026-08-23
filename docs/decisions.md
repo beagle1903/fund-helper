@@ -4,9 +4,9 @@
 
 **Context:** Later chats must not re-decide product and architecture. User-level `AGENTS.md` already has an empty `claude-mem` block; we will not depend on it.
 
-**Decision:** Long-term memory is git-tracked files (`AGENTS.md` router, `docs/context.md`, `docs/architecture.md`, this file, dated specs/plans). Short-term handoff is a pruned `progress.md`. Cursor Memories were planned as a 4–6 fact backup ping only — not the source of truth. Same choice as daily-coin.
+**Decision:** Long-term memory is git-tracked files (`AGENTS.md` router, `docs/context.md`, `docs/architecture.md`, this file, dated specs/plans). Short-term handoff is a pruned `progress.md`. Cursor product Memories are not available via an agent tool, so the five orientation facts live in `docs/context.md` and a short list in `AGENTS.md`. Same choice as daily-coin.
 
-**Consequences:** A clone orients from the repo. We must prune `progress.md`. No `sessionEnd` hook in v1; update that file by hand. Current Cursor no longer exposes a Memories UI or agent tool, so we do not create user-global rules as a substitute (those would leak into other repos). The five orientation facts live in the markdown above.
+**Consequences:** A clone orients from the repo. We must prune `progress.md`. No `sessionEnd` hook in v1; update that file by hand. Do not add these facts as user-global Cursor rules (they would leak into other repos).
 
 ## 002 - Kotlin + Jetpack Compose, one module
 
@@ -39,11 +39,3 @@
 **Decision:** `ExplanationMapper` turns official TEFAS fields into short Turkish sentences. No LLM, no buy/sell language, no holdings. Screens include “yatırım tavsiyesi değildir”.
 
 **Consequences:** Copy stays testable and SPK-safer. We do not invent facts that are not in the payload.
-
-## 006 - Sideload on A23 first; Play is a later milestone
-
-**Context:** Play Console, privacy policy, and financial-features declaration are real work, but they should follow a used APK.
-
-**Decision:** First deliverable is `assembleDebug` installed over USB. Target API 36 is in Gradle from the start so we do not rebuild only for policy.
-
-**Consequences:** Do not spend v1 on store listing copy. Privacy policy is required before Play because the app uses network.

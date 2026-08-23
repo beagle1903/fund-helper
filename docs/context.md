@@ -4,6 +4,14 @@
 
 It is not a chat consultant, broker, portfolio ledger, or investment adviser. Output is informational. Always treat it as “yatırım tavsiyesi değildir”.
 
+## Durable facts
+
+1. v1 is a follow-only TEFAS watchlist, not a chat consultant.
+2. No buy/sell advice; Turkish explanations map official fields only.
+3. Local-only; no backend or accounts in v1.
+4. Sideload APK on Samsung A23 first; Play Store is later.
+5. UI talks only to `FundRepository`; swap `TefasClient` if the phone cannot reach TEFAS.
+
 ## Users
 
 - The first user is the developer, sideloading a debug APK onto a Samsung Galaxy A23.

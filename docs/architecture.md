@@ -10,9 +10,9 @@ Living technical map. Update this file when the code changes. Dated specs under 
 - Room for local follows + snapshots
 - `minSdk 26`, `targetSdk 36` / `compileSdk 36`
 - Default locale: Turkish
-- Intended `applicationId`: `com.burha.fundhelper` (set when the app skeleton is created)
+- `applicationId`: `com.burha.fundhelper`
 
-No Android code exists yet. This map is the target shape.
+Skeleton through `TefasClient` exists on `feat/v1-watchlist` (Tasks 1–4). Room persistence, `FundRepository`, and the three screens are not in yet.
 
 ## Module boundaries
 

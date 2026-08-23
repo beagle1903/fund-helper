@@ -1,0 +1,1 @@
+# Debug minify is off. Release minify stays off in v1.

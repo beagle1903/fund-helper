@@ -1,0 +1,23 @@
+{
+  "errorCode": null,
+  "resultList": [
+    {
+      "fonKodu": "AAK",
+      "fonUnvan": "ATA PORTFÖY ÇOKLU VARLIK DEĞİŞKEN FON",
+      "tarih": "2026-08-20",
+      "fiyat": 34.1
+    },
+    {
+      "fonKodu": "AAK",
+      "fonUnvan": "ATA PORTFÖY ÇOKLU VARLIK DEĞİŞKEN FON",
+      "tarih": "2026-08-21",
+      "fiyat": 35.46418
+    },
+    {
+      "fonKodu": "AAL",
+      "fonUnvan": "ATA PORTFÖY PARA PİYASASI (TL) FONU",
+      "tarih": "2026-08-21",
+      "fiyat": 0
+    }
+  ]
+}

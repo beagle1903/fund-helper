@@ -2,17 +2,8 @@
 .gradle/
 build/
 **/build/
-.cxx/
-.externalNativeBuild/
-
-# IDE and captures
 .idea/
 captures/
-
-# Local SDK path and packages
 local.properties
 *.apk
 *.aab
-*.iml
-*.hprof
-output-metadata.json

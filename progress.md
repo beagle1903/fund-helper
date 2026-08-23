@@ -4,15 +4,14 @@
 
 ## Current status
 
-- Branch: `feat/v1-watchlist`
-- Frozen v1 spec: `docs/superpowers/specs/2026-08-22-fund-helper-v1-design.md`
-- Plan: `docs/superpowers/plans/2026-08-22-fund-helper-v1.md` (10 tasks)
-- Tasks 1–4 done: Compose/Hilt/Room Gradle skeleton, `ExplanationMapper`, TEFAS JSON fixtures, `OkHttpTefasClient` behind `TefasClient`. `applicationId` `com.burha.fundhelper`. Unit tests for mapper + JSON fixtures pass. Nothing installed on the A23.
+- Tasks 1–4 are on `main` ([PR #1](https://github.com/beagle1903/fund-helper/pull/1)).
+- Task 5 (this PR): Room `follows` + `snapshots`, `SnapshotMapper`, Hilt `AppDatabase`, in-memory DAO fakes. Unfollow deletes the follow row only. Compile of debug + unit-test Kotlin succeeds. Nothing installed on the A23.
 
 ## Next
 
-Task 5: Room follows and snapshots. Then repository, three screens, debug APK on the A23.
+Task 6: `FundRepository` (TDD). Then three screens, debug APK on the A23.
 
 ## Blockers
 
-- None for Task 5. Expected later: TEFAS may challenge a mobile user-agent (Akamai). Swap `TefasClient` only.
+- None for Task 6. Expected later: TEFAS may challenge a mobile user-agent (Akamai). Swap `TefasClient` only.
+- Wrap OkHttp `IOException` (offline/DNS/timeout) as `TefasFetchException` so search/refresh keep cache + snackbar.

@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import com.burha.fundhelper.ui.FundHelperNav
 import com.burha.fundhelper.ui.theme.FundHelperTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,13 +15,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FundHelperTheme {
-                SkeletonLabel()
+                FundHelperNav()
             }
         }
     }
-}
-
-@Composable
-private fun SkeletonLabel() {
-    Text(text = "fund-helper")
 }

@@ -4,12 +4,12 @@
 
 ## Current status
 
-- Tasks 1–5 are on `main` (merged PRs).
-- Task 6 done: `FundRepository` with follow/unfollow/search/refresh, tests pass. OkHttp `IOException` wrapped as `TefasFetchException`. Ready on branch `feat/v1-repository`.
+- Tasks 1–6 are on `main` (merged PRs).
+- Task 7 done: Watchlist screen with pull-to-refresh, empty state CTA, navigation host. Ready on branch `feat/v1-watchlist-screen`.
 
 ## Next
 
-Task 7: Watchlist screen. Then two more screens, debug APK on the A23.
+Task 8: Search screen. Then detail screen, debug APK on the A23.
 
 ## Blockers
 

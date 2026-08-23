@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.burha.fundhelper.ui.search.SearchScreen
+import com.burha.fundhelper.ui.search.SearchViewModel
 import com.burha.fundhelper.ui.watchlist.WatchlistScreen
 import com.burha.fundhelper.ui.watchlist.WatchlistViewModel
 
@@ -30,7 +32,12 @@ fun FundHelperNav() {
             )
         }
         composable(Routes.SEARCH) {
-            androidx.compose.material3.Text("")
+            val vm: SearchViewModel = hiltViewModel()
+            SearchScreen(
+                viewModel = vm,
+                onBack = { navController.popBackStack() },
+                onOpen = { code -> navController.navigate(Routes.detail(code)) },
+            )
         }
         composable(
             route = Routes.DETAIL,

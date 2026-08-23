@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">fund-helper</string>
+    <string name="watchlist_title">Takip listesi</string>
+    <string name="watchlist_empty_title">Takip ettiğiniz fon yok.</string>
+    <string name="watchlist_empty_cta">Fon ara</string>
+    <string name="search_title">Fon ara</string>
+    <string name="search_hint">Kod veya fon adı</string>
+    <string name="search_empty_query">Kod veya fon adı yazın.</string>
+    <string name="search_no_results">Sonuç bulunamadı.</string>
+    <string name="search_action">Ara</string>
+    <string name="fetch_error">TEFAS verisi alınamadı.</string>
+    <string name="retry">Yeniden dene</string>
+    <string name="disclaimer">Yatırım tavsiyesi değildir.</string>
+    <string name="missing_field">TEFAS kaydında bu bilgi yok.</string>
+    <string name="detail_title">Fon detayı</string>
+    <string name="detail_missing">Bu fon bulunamadı.</string>
+    <string name="follow">Takip et</string>
+    <string name="unfollow">Takipten çıkar</string>
+    <string name="back">Geri</string>
+    <string name="price_missing">—</string>
+    <string name="return_1d">1 gün</string>
+    <string name="return_1w">1 hafta</string>
+    <string name="return_1m">1 ay</string>
+    <string name="return_3m">3 ay</string>
+    <string name="return_6m">6 ay</string>
+    <string name="return_12m">12 ay</string>
+    <string name="return_36m">36 ay</string>
+    <string name="return_60m">60 ay</string>
+</resources>

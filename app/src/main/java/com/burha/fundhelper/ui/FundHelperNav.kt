@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.burha.fundhelper.ui.detail.DetailScreen
+import com.burha.fundhelper.ui.detail.DetailViewModel
 import com.burha.fundhelper.ui.search.SearchScreen
 import com.burha.fundhelper.ui.search.SearchViewModel
 import com.burha.fundhelper.ui.watchlist.WatchlistScreen
@@ -43,7 +45,8 @@ fun FundHelperNav() {
             route = Routes.DETAIL,
             arguments = listOf(navArgument("fundCode") { type = NavType.StringType }),
         ) {
-            androidx.compose.material3.Text("")
+            val vm: DetailViewModel = hiltViewModel()
+            DetailScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
     }
 }

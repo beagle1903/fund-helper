@@ -4,13 +4,13 @@
 
 ## Current status
 
-- Tasks 1–7 are on `main` (merged PRs).
-- Task 8 done: Search screen with IME Search, Material3 TextField, follow/unfollow stars, error handling. Ready on branch `feat/v1-search-screen`.
+- Tasks 1–8 are on `main` (merged PRs #1–#5).
+- Task 9 done: fund detail (price, returns, type/risk/fees, mapper explanation, **Yatırım tavsiyesi değildir.**). Refresh only when followed. Root `README.md` added for GitHub visitors. Nothing installed on the A23.
 
 ## Next
 
-Task 9: Detail screen. Then debug APK on the A23.
+Task 10: debug APK sideload on the Samsung A23.
 
 ## Blockers
 
-- None for Task 8. Expected later: TEFAS may challenge a mobile user-agent (Akamai). Swap `TefasClient` only.
+- None for Task 10 except USB + the A23. Expected: TEFAS may challenge a mobile user-agent (Akamai). Swap `TefasClient` only.

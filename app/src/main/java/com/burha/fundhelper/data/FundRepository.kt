@@ -44,6 +44,7 @@ class FundRepository @Inject constructor(
     private val snapshotDao: SnapshotDao,
     private val tefas: TefasClient,
     private val clock: Clock,
+    private val followBackup: FollowBackup,
 ) {
     private val tr = Locale("tr", "TR")
     private var catalogMemory: List<FundSnapshot>? = null
@@ -78,10 +79,24 @@ class FundRepository @Inject constructor(
 
     suspend fun follow(code: String) {
         followDao.insert(FollowEntity(code))
+        persistBackup()
     }
 
     suspend fun unfollow(code: String) {
         followDao.delete(code)
+        persistBackup()
+    }
+
+    suspend fun restoreFollowsIfNeeded() {
+        if (followDao.getCodes().isNotEmpty()) return
+        val codes = try {
+            FollowBackupCodec.normalize(followBackup.readCodes())
+        } catch (_: Exception) {
+            return
+        }
+        if (codes.isEmpty()) return
+        codes.forEach { code -> followDao.insert(FollowEntity(code)) }
+        persistBackup()
     }
 
     suspend fun search(query: String, refetchCatalog: Boolean = false): SearchOutcome {
@@ -99,6 +114,7 @@ class FundRepository @Inject constructor(
     }
 
     suspend fun refreshFollowed(force: Boolean): Result<Unit> {
+        restoreFollowsIfNeeded()
         val codes = followDao.getCodes()
         if (codes.isEmpty()) return Result.success(Unit)
         val now = clock.nowMillis()
@@ -138,6 +154,14 @@ class FundRepository @Inject constructor(
         val fresh = tefas.fetchYatCatalog()
         catalogMemory = fresh
         return fresh
+    }
+
+    private suspend fun persistBackup() {
+        try {
+            followBackup.writeCodes(followDao.getCodes())
+        } catch (_: Exception) {
+            // Room is the live list; a backup miss must not roll back follows.
+        }
     }
 
     private fun matchesQuery(fund: FundSnapshot, raw: String): Boolean {

@@ -4,6 +4,7 @@ import com.burha.fundhelper.domain.FundKind
 import com.burha.fundhelper.domain.FundSnapshot
 import com.burha.fundhelper.domain.ReturnKeys
 import com.burha.fundhelper.fakes.FakeClock
+import com.burha.fundhelper.fakes.FakeFollowBackup
 import com.burha.fundhelper.fakes.FakeFollowDao
 import com.burha.fundhelper.fakes.FakeSnapshotDao
 import com.burha.fundhelper.fakes.FakeTefasClient
@@ -36,10 +37,21 @@ class FundRepositoryTest {
         tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced)),
         snapshots: FakeSnapshotDao = FakeSnapshotDao(),
         clock: FakeClock = FakeClock(),
+        backup: FakeFollowBackup = FakeFollowBackup(),
     ): Triple<FundRepository, FakeTefasClient, FakeSnapshotDao> {
         val follows = FakeFollowDao(snapshots)
-        val repository = FundRepository(follows, snapshots, tefas, clock)
+        val repository = FundRepository(follows, snapshots, tefas, clock, backup)
         return Triple(repository, tefas, snapshots)
+    }
+
+    private fun repoWithBackup(
+        backup: FakeFollowBackup = FakeFollowBackup(),
+        tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced)),
+        snapshots: FakeSnapshotDao = FakeSnapshotDao(),
+        clock: FakeClock = FakeClock(),
+    ): Pair<FundRepository, FakeFollowBackup> {
+        val follows = FakeFollowDao(snapshots)
+        return FundRepository(follows, snapshots, tefas, clock, backup) to backup
     }
 
     @Test
@@ -132,6 +144,69 @@ class FundRepositoryTest {
         clock.now = 5 * 60 * 1000L
         repository.refreshFollowed(force = false)
         assertEquals(2, tefas.catalogCalls)
+    }
+
+    @Test
+    fun follow_and_unfollow_mirror_codes_to_device_backup() = runTest {
+        val (repository, backup) = repoWithBackup()
+        repository.follow("AAK")
+        repository.follow("AAL")
+        assertEquals(listOf("AAK", "AAL"), backup.codes)
+        repository.unfollow("AAK")
+        assertEquals(listOf("AAL"), backup.codes)
+        repository.unfollow("AAL")
+        assertTrue(backup.codes.isEmpty())
+    }
+
+    @Test
+    fun restore_fills_empty_room_from_device_backup() = runTest {
+        val backup = FakeFollowBackup().apply { codes = listOf("AAL", "AAK") }
+        val (repository, _) = repoWithBackup(backup)
+        repository.restoreFollowsIfNeeded()
+        assertEquals(listOf("AAK", "AAL"), repository.observeWatchlist().first().map { it.code })
+    }
+
+    @Test
+    fun restore_does_not_readd_unfollowed_codes_when_room_has_follows() = runTest {
+        val backup = FakeFollowBackup()
+        val (repository, _) = repoWithBackup(backup)
+        repository.follow("AAK")
+        backup.codes = listOf("AAK", "ZZZ")
+        repository.restoreFollowsIfNeeded()
+        assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+        assertEquals(listOf("AAK", "ZZZ"), backup.codes)
+    }
+
+    @Test
+    fun backup_write_failure_does_not_drop_room_follow() = runTest {
+        val backup = FakeFollowBackup().apply { writeError = true }
+        val (repository, _) = repoWithBackup(backup)
+        repository.follow("AAK")
+        assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+    }
+
+    @Test
+    fun restore_read_failure_leaves_watchlist_empty() = runTest {
+        val backup = FakeFollowBackup().apply {
+            codes = listOf("AAK")
+            readError = true
+        }
+        val (repository, _) = repoWithBackup(backup)
+        repository.restoreFollowsIfNeeded()
+        assertTrue(repository.observeWatchlist().first().isEmpty())
+    }
+
+    @Test
+    fun refresh_restores_followed_codes_before_fetch() = runTest {
+        val backup = FakeFollowBackup().apply { codes = listOf("AAK") }
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        val result = repository.refreshFollowed(force = true)
+        assertTrue(result.isSuccess)
+        assertEquals(1, tefas.catalogCalls)
+        assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+        assertEquals(35.46, repository.observeWatchlist().first().single().price)
     }
 
     @Test

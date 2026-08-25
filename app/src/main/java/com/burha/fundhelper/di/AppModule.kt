@@ -2,6 +2,8 @@ package com.burha.fundhelper.di
 
 import android.content.Context
 import androidx.room.Room
+import com.burha.fundhelper.data.FollowBackup
+import com.burha.fundhelper.data.MediaStoreFollowBackup
 import com.burha.fundhelper.data.local.AppDatabase
 import com.burha.fundhelper.data.local.FollowDao
 import com.burha.fundhelper.data.local.SnapshotDao
@@ -37,4 +39,9 @@ object AppModule {
 
     @Provides
     fun snapshotDao(db: AppDatabase): SnapshotDao = db.snapshotDao()
+
+    @Provides
+    @Singleton
+    fun followBackup(@ApplicationContext context: Context): FollowBackup =
+        MediaStoreFollowBackup(context)
 }

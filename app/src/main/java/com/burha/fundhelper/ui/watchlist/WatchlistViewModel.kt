@@ -27,6 +27,7 @@ class WatchlistViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            funds.restoreFollowsIfNeeded()
             funds.observeWatchlist().collect { rows ->
                 _state.update { it.copy(rows = rows) }
             }

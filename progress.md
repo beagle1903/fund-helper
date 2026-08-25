@@ -4,14 +4,14 @@
 
 ## Current status
 
-- Tasks 1–9 are on `main` (PRs #1–#6). v1 UI is complete (watchlist, search, detail).
-- Task 10: unit tests passed; debug APK assembled; **sideloaded on Samsung A23** (`SM-A235F`, serial `R68TB02DR2V`). Package `com.burha.fundhelper` is installed (`pm path` returned a `package:` path).
-- Manual smoke still for you on device: empty watchlist copy, search submit, follow, kill/reopen (follows remain), airplane mode snackbar + list still there, Detail disclaimer **Yatırım tavsiyesi değildir.**
+- v1 (Tasks 1–10) is on `main`. Watchlist / search / detail work; debug APK was sideloaded on the A23 (`SM-A235F`).
+- Colorful adaptive launcher (teal + gold/coral/mint bars) is on `feat/colorful-launcher-icon`. `assembleDebug` succeeded; A23 was **not** on USB for this install.
 
 ## Next
 
-Play Store (out of the v1 plan). If TEFAS challenges the phone (Akamai), swap `TefasClient` only.
+- Sideload the icon APK when the A23 is plugged in (`adb install -r app/build/outputs/apk/debug/app-debug.apk`).
+- After that PR merges: UI polish (default Material 3 still looks dull).
 
 ## Blockers
 
-- None for sideload. Expected later: TEFAS may challenge a mobile user-agent.
+- USB data cable needed for the icon sideload. Expected later: TEFAS may challenge a mobile user-agent.

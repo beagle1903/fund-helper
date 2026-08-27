@@ -4,16 +4,14 @@
 
 ## Current status
 
-- Turkish search fold is on `feat/turkish-search-fold`
-- Unit tests 37/37 PASS and `assembleDebug` succeeded this session (APK at `app/build/outputs/apk/debug/app-debug.apk`)
-- A23 sideload skipped this session (no USB) — do **not** uninstall
+- `main` still has [PR #12](https://github.com/beagle1903/fund-helper/pull/12) (Turkish search fold). A23 last verified on that APK. Do **not** uninstall.
+- Branch `feat/watchlist-return-sort`: watchlist sorts by headline return (worst first, best last); empty **Fon ara** and search **Ara** are full-width. `testDebugUnitTest` and `assembleDebug` succeeded. USB had no device, so this APK is not on the phone yet.
 
 ## Next
 
-- Sideload with `adb install -r` when the phone is `device`; manual search `yatirim` / `degisken` / `AAK`; re-follow so Downloads backup exists
+- Plug in the A23 and `adb install -r` this branch. Confirm a mixed-return watchlist (negative above positive; `—` at the bottom) and the full-width empty/search buttons.
 
 ## Blockers
 
-- USB empty; fold APK (and polish) not verified on the A23 this session
-- Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered; re-follow so `Download/com.burha.fundhelper-follows.json` exists
-- Expected later: TEFAS may challenge a mobile user-agent
+- Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered.
+- Expected later: TEFAS may challenge a mobile user-agent.

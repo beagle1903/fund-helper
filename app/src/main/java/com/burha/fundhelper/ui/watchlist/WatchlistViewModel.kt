@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.burha.fundhelper.data.FundRepository
 import com.burha.fundhelper.data.WatchlistRow
+import com.burha.fundhelper.domain.sortByHeadlineReturn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,11 @@ class WatchlistViewModel @Inject constructor(
         viewModelScope.launch {
             funds.restoreFollowsIfNeeded()
             funds.observeWatchlist().collect { rows ->
-                _state.update { it.copy(rows = rows) }
+                _state.update {
+                    it.copy(
+                        rows = sortByHeadlineReturn(rows, { row -> row.headlineReturn }, { row -> row.code }),
+                    )
+                }
             }
         }
     }

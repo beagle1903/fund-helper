@@ -97,6 +97,7 @@ fun SearchScreen(
             Button(
                 onClick = { viewModel.submit() },
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp),
             ) {

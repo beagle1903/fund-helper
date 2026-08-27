@@ -4,16 +4,18 @@
 
 ## Current status
 
-- v1 (Tasks 1–10), colorful launcher (PR #8), and follow durability (PR #9) are on `main` (`777e7c2`). Only `main` remains locally and on origin.
-- Follows still live in Room. Codes are also mirrored to `Download/com.burha.fundhelper-follows.json` and restored when Room is empty. Settings uninstall can keep app data (`hasFragileUserData`).
-- Durability APK is **not** on the A23 yet (USB was empty this session).
+- UI polish is on `feat/ui-polish` (teal Material 3, fund cards, signed return colors). Spec is Approved.
+- Unit tests: 29/29 PASS (`FundRepositoryTest`, `FollowBackupCodecTest`, `ReturnSignTest` included). `assembleDebug` succeeded (`app/build/outputs/apk/debug/app-debug.apk`).
+- A23 was not on `adb devices` this session. Sideload skipped. Do **not** uninstall.
 
 ## Next
 
-- Sideload with `adb install -r` (do **not** uninstall). Re-follow funds once so the Downloads file exists.
-- UI polish (default Material 3 still looks dull).
+- When the A23 is `device`: `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
+- Manual: empty watchlist, a followed card, search card, detail disclaimer visible, light and dark if the phone can switch.
+- Re-follow funds once so `Download/com.burha.fundhelper-follows.json` exists.
 
 ## Blockers
 
+- USB empty this session; polish APK is not on the A23 yet.
 - Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered.
 - Expected later: TEFAS may challenge a mobile user-agent.

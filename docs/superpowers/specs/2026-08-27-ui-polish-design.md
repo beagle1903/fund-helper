@@ -1,7 +1,7 @@
 # UI polish — Design Spec
 
 **Date:** 2026-08-27
-**Status:** Draft (awaiting review). Does not rewrite the frozen 2026-08-22 v1 spec.
+**Status:** Approved. Does not rewrite the frozen 2026-08-22 v1 spec.
 **Problem:** Watchlist, search, and detail work, but they use default Material 3 purple and unstyled stacked `Text`. The app feels dull next to the teal launcher icon.
 
 ## Goal

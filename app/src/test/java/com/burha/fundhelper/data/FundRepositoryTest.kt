@@ -228,6 +228,7 @@ class FundRepositoryTest {
         val ascii = repository.search("yatirim")
         assertTrue(ascii is SearchOutcome.Success)
         assertEquals(listOf("XYZ"), (ascii as SearchOutcome.Success).matches.map { it.code })
+        assertEquals("ÖRNEK YATIRIM FONU", (ascii as SearchOutcome.Success).matches.single().name)
         val dotted = repository.search("Yatırım")
         assertTrue(dotted is SearchOutcome.Success)
         assertEquals(listOf("XYZ"), (dotted as SearchOutcome.Success).matches.map { it.code })

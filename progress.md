@@ -4,9 +4,16 @@
 
 ## Current status
 
-- Turkish search fold is implemented on branch `feat/turkish-search-fold`
-- A23 sideload: no device connected during this session
+- Turkish search fold is on `feat/turkish-search-fold`
+- Unit tests 37/37 PASS and `assembleDebug` succeeded this session (APK at `app/build/outputs/apk/debug/app-debug.apk`)
+- A23 sideload skipped this session (no USB) — do **not** uninstall
 
 ## Next
 
-- Stop. Do not start another feature.
+- Sideload with `adb install -r` when the phone is `device`; manual search `yatirim` / `degisken` / `AAK`; re-follow so Downloads backup exists
+
+## Blockers
+
+- USB empty; fold APK (and polish) not verified on the A23 this session
+- Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered; re-follow so `Download/com.burha.fundhelper-follows.json` exists
+- Expected later: TEFAS may challenge a mobile user-agent

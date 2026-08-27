@@ -1,8 +1,6 @@
 package com.burha.fundhelper.ui.search
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burha.fundhelper.R
 import com.burha.fundhelper.domain.FundSnapshot
+import com.burha.fundhelper.ui.FundRowCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,13 +75,14 @@ fun SearchScreen(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
+                .padding(padding),
         ) {
             OutlinedTextField(
                 value = state.query,
                 onValueChange = viewModel::onQueryChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 label = { Text(stringResource(R.string.search_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -89,20 +90,26 @@ fun SearchScreen(
             )
             Button(
                 onClick = { viewModel.submit() },
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp),
             ) {
                 Text(stringResource(R.string.search_action))
             }
             when {
                 state.emptyQueryHint -> Text(
                     stringResource(R.string.search_empty_query),
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
                 )
                 state.noResults -> Text(
                     stringResource(R.string.search_no_results),
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
                 )
-                else -> LazyColumn(Modifier.padding(top = 16.dp)) {
+                else -> LazyColumn(Modifier.padding(top = 8.dp)) {
                     items(state.matches, key = { it.code }) { fund ->
                         val followed = fund.code in state.followedCodes
                         SearchRow(
@@ -125,22 +132,25 @@ private fun SearchRow(
     onOpen: (String) -> Unit,
     onToggle: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onOpen(fund.code) }
-            .padding(vertical = 12.dp),
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(fund.code)
-            Text(fund.name)
-        }
-        IconButton(onClick = onToggle) {
-            if (followed) {
-                Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.unfollow))
-            } else {
-                Icon(Icons.Outlined.StarBorder, contentDescription = stringResource(R.string.follow))
+    FundRowCard(
+        code = fund.code,
+        name = fund.name,
+        onClick = { onOpen(fund.code) },
+        trailing = {
+            IconButton(onClick = onToggle) {
+                if (followed) {
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = stringResource(R.string.unfollow),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                } else {
+                    Icon(
+                        Icons.Outlined.StarBorder,
+                        contentDescription = stringResource(R.string.follow),
+                    )
+                }
             }
-        }
-    }
+        },
+    )
 }

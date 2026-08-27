@@ -6,13 +6,27 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
+private val LightColors = lightColorScheme(
+    primary = TealPrimary,
+    onPrimary = TealOnPrimary,
+    primaryContainer = TealPrimaryContainer,
+    onPrimaryContainer = TealOnPrimaryContainer,
+)
+
+private val DarkColors = darkColorScheme(
+    primary = TealPrimary,
+    onPrimary = TealOnPrimary,
+    primaryContainer = TealPrimaryContainerDark,
+    onPrimaryContainer = TealPrimaryContainer,
+)
+
 @Composable
 fun FundHelperTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme(),
+        colorScheme = if (darkTheme) DarkColors else LightColors,
         content = content,
     )
 }

@@ -1,10 +1,10 @@
 package com.burha.fundhelper.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import com.burha.fundhelper.R
 import com.burha.fundhelper.ui.theme.ReturnNegativeDark
@@ -19,14 +19,14 @@ fun ReturnPercentText(
     leading: String = "",
 ) {
     val dash = stringResource(R.string.price_missing)
-    val dark = isSystemInDarkTheme()
+    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     val color = when (returnSign(value)) {
         ReturnSign.Positive -> if (dark) ReturnPositiveDark else ReturnPositiveLight
         ReturnSign.Negative -> if (dark) ReturnNegativeDark else ReturnNegativeLight
         ReturnSign.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     val body = if (value == null) dash else "${formatNumber(value)}%"
-    val text = if (leading.isEmpty()) body else "$leading $body"
+    val text = if (value == null || leading.isEmpty()) body else "$leading $body"
     Text(
         text = text,
         modifier = modifier,

@@ -11,6 +11,18 @@ private val LightColors = lightColorScheme(
     onPrimary = TealOnPrimary,
     primaryContainer = TealPrimaryContainer,
     onPrimaryContainer = TealOnPrimaryContainer,
+    inversePrimary = TealInversePrimaryLight,
+    secondary = TealSecondaryLight,
+    onSecondary = TealOnSecondaryLight,
+    secondaryContainer = TealSecondaryContainerLight,
+    onSecondaryContainer = TealOnSecondaryContainerLight,
+    tertiary = TealTertiaryLight,
+    onTertiary = TealOnTertiaryLight,
+    tertiaryContainer = TealTertiaryContainerLight,
+    onTertiaryContainer = TealOnTertiaryContainerLight,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    surfaceContainerHighest = SurfaceContainerHighestLight,
 )
 
 private val DarkColors = darkColorScheme(
@@ -18,6 +30,18 @@ private val DarkColors = darkColorScheme(
     onPrimary = TealOnPrimary,
     primaryContainer = TealPrimaryContainerDark,
     onPrimaryContainer = TealPrimaryContainer,
+    inversePrimary = TealInversePrimaryDark,
+    secondary = TealSecondaryDark,
+    onSecondary = TealOnSecondaryDark,
+    secondaryContainer = TealSecondaryContainerDark,
+    onSecondaryContainer = TealOnSecondaryContainerDark,
+    tertiary = TealTertiaryDark,
+    onTertiary = TealOnTertiaryDark,
+    tertiaryContainer = TealTertiaryContainerDark,
+    onTertiaryContainer = TealOnTertiaryContainerDark,
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    surfaceContainerHighest = SurfaceContainerHighestDark,
 )
 
 @Composable

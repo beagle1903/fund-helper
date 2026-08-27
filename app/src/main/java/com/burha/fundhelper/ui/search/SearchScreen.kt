@@ -1,6 +1,8 @@
 package com.burha.fundhelper.ui.search
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -35,7 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burha.fundhelper.R
 import com.burha.fundhelper.domain.FundSnapshot
+import com.burha.fundhelper.domain.ReturnKeys
 import com.burha.fundhelper.ui.FundRowCard
+import com.burha.fundhelper.ui.ReturnPercentText
+import com.burha.fundhelper.ui.periodLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,7 +115,10 @@ fun SearchScreen(
                         .padding(horizontal = 16.dp)
                         .padding(top = 16.dp),
                 )
-                else -> LazyColumn(Modifier.padding(top = 8.dp)) {
+                else -> LazyColumn(
+                    modifier = Modifier.padding(top = 8.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp),
+                ) {
                     items(state.matches, key = { it.code }) { fund ->
                         val followed = fund.code in state.followedCodes
                         SearchRow(
@@ -137,18 +146,25 @@ private fun SearchRow(
         name = fund.name,
         onClick = { onOpen(fund.code) },
         trailing = {
-            IconButton(onClick = onToggle) {
-                if (followed) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = stringResource(R.string.unfollow),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                } else {
-                    Icon(
-                        Icons.Outlined.StarBorder,
-                        contentDescription = stringResource(R.string.follow),
-                    )
+            val headline = ReturnKeys.headline(fund.returns)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ReturnPercentText(
+                    value = headline?.second,
+                    leading = periodLabel(headline?.first),
+                )
+                IconButton(onClick = onToggle) {
+                    if (followed) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = stringResource(R.string.unfollow),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.StarBorder,
+                            contentDescription = stringResource(R.string.follow),
+                        )
+                    }
                 }
             }
         },

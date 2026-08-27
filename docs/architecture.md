@@ -24,7 +24,7 @@ Compose screens → ViewModels → FundRepository → Room
                                  FundRepository → ExplanationMapper
 ```
 
-- **Screens:** Watchlist (home, pull-to-refresh, empty CTA) → Search (code/name) → Detail (price, returns, type/risk/fees, Turkish explanation, disclaimer).
+- **Screens:** Watchlist (home, pull-to-refresh, empty CTA) → Search (code/name) → Detail (price, returns, type/risk/fees, Turkish explanation, disclaimer). Watchlist and search use teal Material 3 fund cards (`#038984`); detail uses the same theme with labeled sections and sign-colored returns.
 - **ViewModels:** UI state only. They depend on `FundRepository`, never on Room or HTTP.
 - **FundRepository:** the only UI-facing data API. Follows, snapshots, search, refresh. Mirrors follow codes to `FollowBackup`; restores into Room only when the follow table is empty.
 - **Room:** live follows and last-known fund snapshots (app private sandbox; deleted on uninstall).

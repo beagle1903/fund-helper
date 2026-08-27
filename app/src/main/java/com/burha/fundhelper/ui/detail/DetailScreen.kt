@@ -1,16 +1,21 @@
 package com.burha.fundhelper.ui.detail
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burha.fundhelper.R
 import com.burha.fundhelper.domain.ReturnKeys
+import com.burha.fundhelper.ui.ReturnPercentText
 import com.burha.fundhelper.ui.formatFetchedAt
 import com.burha.fundhelper.ui.formatNumber
 import com.burha.fundhelper.ui.periodLabel
@@ -89,30 +95,76 @@ fun DetailScreen(
                 }
             } else if (detail != null) {
                 val snapshot = detail.snapshot
+                val missing = stringResource(R.string.missing_field)
                 Column(
                     Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp),
                 ) {
-                    Text(snapshot.code)
-                    Text(snapshot.name)
-                    Text(snapshot.price?.let { formatNumber(it) } ?: dash)
-                    snapshot.priceDate?.let { Text(it) }
-                    Text(formatFetchedAt(snapshot.fetchedAt))
-                    ReturnKeys.DISPLAY_ORDER.forEach { key ->
-                        val value = snapshot.returns[key] ?: return@forEach
-                        Text("${periodLabel(key)}: ${formatNumber(value)}%")
+                    Card(Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(snapshot.code, style = MaterialTheme.typography.titleLarge)
+                            Spacer(Modifier.height(8.dp))
+                            Text(snapshot.name, style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                snapshot.price?.let { formatNumber(it) } ?: dash,
+                                style = MaterialTheme.typography.headlineSmall,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            snapshot.priceDate?.let {
+                                Text(
+                                    it,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Text(
+                                formatFetchedAt(snapshot.fetchedAt),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.detail_returns),
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                            ReturnKeys.DISPLAY_ORDER.forEach { key ->
+                                val value = snapshot.returns[key] ?: return@forEach
+                                ReturnPercentText(value, leading = periodLabel(key))
+                            }
+                        }
                     }
-                    Text(snapshot.fundType ?: stringResource(R.string.missing_field))
-                    Text(snapshot.risk ?: stringResource(R.string.missing_field))
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.detail_type),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(snapshot.fundType ?: missing)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.detail_risk),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(snapshot.risk ?: missing)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.detail_fees),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
                     if (snapshot.fees.isEmpty()) {
-                        Text(stringResource(R.string.missing_field))
+                        Text(missing)
                     } else {
                         snapshot.fees.forEach { Text("${it.label}: ${it.value}") }
                     }
                     Text(detail.explanation, modifier = Modifier.padding(top = 16.dp))
-                    Text(stringResource(R.string.disclaimer), modifier = Modifier.padding(top = 16.dp))
+                    Text(
+                        stringResource(R.string.disclaimer),
+                        modifier = Modifier.padding(top = 16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     Button(
                         onClick = viewModel::toggleFollow,
                         modifier = Modifier.padding(top = 16.dp),

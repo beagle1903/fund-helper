@@ -15,6 +15,10 @@
     <string name="missing_field">TEFAS kaydında bu bilgi yok.</string>
     <string name="detail_title">Fon detayı</string>
     <string name="detail_missing">Bu fon bulunamadı.</string>
+    <string name="detail_returns">Getiriler</string>
+    <string name="detail_type">Fon türü</string>
+    <string name="detail_risk">Risk</string>
+    <string name="detail_fees">Ücretler</string>
     <string name="follow">Takip et</string>
     <string name="unfollow">Takipten çıkar</string>
     <string name="back">Geri</string>

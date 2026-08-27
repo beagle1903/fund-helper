@@ -65,6 +65,13 @@ fun SearchScreen(
         }
     }
 
+    LaunchedEffect(state.navigateBack) {
+        if (state.navigateBack) {
+            viewModel.consumeNavigateBack()
+            onBack()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

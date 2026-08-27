@@ -21,6 +21,7 @@ data class SearchUiState(
     val noResults: Boolean = false,
     val isSearching: Boolean = false,
     val showError: Boolean = false,
+    val navigateBack: Boolean = false,
 )
 
 @HiltViewModel
@@ -45,25 +46,30 @@ class SearchViewModel @Inject constructor(
     fun submit(refetchCatalog: Boolean = false) {
         viewModelScope.launch {
             _state.update { it.copy(isSearching = true, showError = false, noResults = false) }
-            when (val outcome = funds.search(_state.value.query, refetchCatalog)) {
-                SearchOutcome.EmptyQuery -> _state.update {
-                    it.copy(
-                        isSearching = false,
-                        emptyQueryHint = true,
-                        matches = emptyList(),
-                        noResults = false,
-                    )
+            when (val result = applySearchCommand(_state.value.query, funds, refetchCatalog)) {
+                SearchSubmitResult.NavigateBack -> _state.update {
+                    it.copy(isSearching = false, navigateBack = true)
                 }
-                is SearchOutcome.Success -> _state.update {
-                    it.copy(
-                        isSearching = false,
-                        emptyQueryHint = false,
-                        matches = outcome.matches,
-                        noResults = outcome.matches.isEmpty(),
-                    )
-                }
-                is SearchOutcome.Failure -> _state.update {
-                    it.copy(isSearching = false, showError = true)
+                is SearchSubmitResult.Stay -> when (val outcome = result.outcome) {
+                    SearchOutcome.EmptyQuery -> _state.update {
+                        it.copy(
+                            isSearching = false,
+                            emptyQueryHint = true,
+                            matches = emptyList(),
+                            noResults = false,
+                        )
+                    }
+                    is SearchOutcome.Success -> _state.update {
+                        it.copy(
+                            isSearching = false,
+                            emptyQueryHint = false,
+                            matches = outcome.matches,
+                            noResults = outcome.matches.isEmpty(),
+                        )
+                    }
+                    is SearchOutcome.Failure -> _state.update {
+                        it.copy(isSearching = false, showError = true)
+                    }
                 }
             }
         }
@@ -77,5 +83,9 @@ class SearchViewModel @Inject constructor(
 
     fun consumeError() {
         _state.update { it.copy(showError = false) }
+    }
+
+    fun consumeNavigateBack() {
+        _state.update { it.copy(navigateBack = false) }
     }
 }

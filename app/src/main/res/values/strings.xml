@@ -3,6 +3,7 @@
     <string name="app_name">fund-helper</string>
     <string name="watchlist_title">Takip listesi</string>
     <string name="watchlist_empty_title">Takip ettiğiniz fon yok.</string>
+    <string name="watchlist_empty_body">Kod veya ad ile fon arayın.</string>
     <string name="watchlist_empty_cta">Fon ara</string>
     <string name="search_title">Fon ara</string>
     <string name="search_hint">Kod veya fon adı</string>

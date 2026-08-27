@@ -24,13 +24,14 @@ Compose screens → ViewModels → FundRepository → Room
                                  FundRepository → ExplanationMapper
 ```
 
-- **Screens:** Watchlist (home, pull-to-refresh, empty CTA) → Search (code/name) → Detail (price, returns, type/risk/fees, Turkish explanation, disclaimer). Watchlist and search use teal Material 3 fund cards (`#038984`); detail uses the same theme with labeled sections and sign-colored returns.
-- **ViewModels:** UI state only. They depend on `FundRepository`, never on Room or HTTP.
+- **Screens:** Watchlist (home, pull-to-refresh, empty CTA) → Search (code/name) → Detail (price, returns, type/risk/fees, Turkish explanation, disclaimer). Watchlist and search use teal Material 3 fund cards (`#038984`); detail uses the same theme with labeled sections and sign-colored returns. Watchlist cards are ordered by headline return, most negative first, most positive last (missing `%` last). Empty watchlist and search **Ara** are full-width.
+- **ViewModels:** UI state only. They depend on `FundRepository`, never on Room or HTTP. `WatchlistViewModel` sorts `observeWatchlist()` with `sortByHeadlineReturn`.
 - **FundRepository:** the only UI-facing data API. Follows, snapshots, search, refresh. Search matching folds Turkish letters both ways (i/ı, ş/s, ğ/g, ü/u, ö/o, ç/c). Mirrors follow codes to `FollowBackup`; restores into Room only when the follow table is empty.
 - **Room:** live follows and last-known fund snapshots (app private sandbox; deleted on uninstall).
 - **FollowBackup:** on-device JSON of followed codes in shared Downloads. Not a server. Production is `MediaStoreFollowBackup`.
 - **TefasClient:** HTTP to current `tefas.gov.tr/api/funds/...` endpoints. Isolated so it can be swapped if the phone is blocked (Akamai / bot protection). Use a browser-like client first.
 - **ExplanationMapper:** pure function from official fields to short Turkish copy. No LLM, no network.
+- **sortByHeadlineReturn:** pure function. Ascending headline `%`, missing last, code tiebreak. Not advice.
 
 The HTTP library (OkHttp or Ktor) lives only inside `TefasClient`. Choose it at implementation time via current docs (Context7). Do not import it from UI.
 

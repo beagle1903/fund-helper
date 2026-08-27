@@ -86,6 +86,11 @@ class FundRepository @Inject constructor(
         persistBackup()
     }
 
+    suspend fun clearFollows() {
+        followDao.deleteAll()
+        persistBackup()
+    }
+
     suspend fun restoreFollowsIfNeeded() {
         if (followDao.getCodes().isNotEmpty()) return
         val codes = try {

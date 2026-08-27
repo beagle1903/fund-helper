@@ -15,6 +15,9 @@ interface FollowDao {
     @Query("DELETE FROM follows WHERE code = :code")
     suspend fun delete(code: String)
 
+    @Query("DELETE FROM follows")
+    suspend fun deleteAll()
+
     @Query("SELECT code FROM follows ORDER BY code")
     suspend fun getCodes(): List<String>
 

@@ -259,4 +259,40 @@ class FundRepositoryTest {
         assertTrue(outcome is SearchOutcome.Success)
         assertTrue((outcome as SearchOutcome.Success).matches.isEmpty())
     }
+
+    @Test
+    fun clear_follows_empties_room_and_backup_keeps_snapshots() = runTest {
+        val backup = FakeFollowBackup()
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        repository.search("AAK")
+        repository.follow("AAK")
+        repository.follow("AAL")
+        repository.clearFollows()
+        assertTrue(repository.observeWatchlist().first().isEmpty())
+        assertTrue(backup.codes.isEmpty())
+        assertNotNull(snapshots.get("AAK"))
+    }
+
+    @Test
+    fun clear_follows_then_restore_does_not_bring_codes_back() = runTest {
+        val (repository, backup) = repoWithBackup()
+        repository.follow("AAK")
+        repository.clearFollows()
+        repository.restoreFollowsIfNeeded()
+        assertTrue(repository.observeWatchlist().first().isEmpty())
+        assertTrue(backup.codes.isEmpty())
+    }
+
+    @Test
+    fun clear_follows_backup_write_failure_leaves_room_empty() = runTest {
+        val backup = FakeFollowBackup()
+        val (repository, _) = repoWithBackup(backup)
+        repository.follow("AAK")
+        backup.writeError = true
+        repository.clearFollows()
+        assertTrue(repository.observeWatchlist().first().isEmpty())
+        assertEquals(listOf("AAK"), backup.codes)
+    }
 }

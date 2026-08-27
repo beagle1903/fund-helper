@@ -31,10 +31,11 @@ class FundRepositoryTest {
         fetchedAt = 0L,
     )
     private val aal = aak.copy(code = "AAL", name = "ATA PORTFÖY PARA PİYASASI (TL) FONU")
+    private val yatirimFon = aak.copy(code = "XYZ", name = "ÖRNEK YATIRIM FONU")
     private val aakPriced = aak.copy(price = 35.46, priceDate = "2026-08-21")
 
     private fun repo(
-        tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced)),
+        tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal, yatirimFon), prices = listOf(aakPriced)),
         snapshots: FakeSnapshotDao = FakeSnapshotDao(),
         clock: FakeClock = FakeClock(),
         backup: FakeFollowBackup = FakeFollowBackup(),
@@ -219,5 +220,43 @@ class FundRepositoryTest {
         assertTrue(detail!!.explanation.contains("Değişken Şemsiye Fonu"))
         assertTrue(detail.isFollowed)
         assertTrue(!detail.explanation.contains("Yatırım tavsiyesi değildir."))
+    }
+
+    @Test
+    fun search_folds_turkish_letters_both_directions() = runTest {
+        val (repository, _, _) = repo()
+        val ascii = repository.search("yatirim")
+        assertTrue(ascii is SearchOutcome.Success)
+        assertEquals(listOf("XYZ"), (ascii as SearchOutcome.Success).matches.map { it.code })
+        assertEquals("ÖRNEK YATIRIM FONU", (ascii as SearchOutcome.Success).matches.single().name)
+        val dotted = repository.search("Yatırım")
+        assertTrue(dotted is SearchOutcome.Success)
+        assertEquals(listOf("XYZ"), (dotted as SearchOutcome.Success).matches.map { it.code })
+    }
+
+    @Test
+    fun search_folds_existing_catalog_name() = runTest {
+        val (repository, _, _) = repo()
+        val outcome = repository.search("degisken")
+        assertTrue(outcome is SearchOutcome.Success)
+        val codes = (outcome as SearchOutcome.Success).matches.map { it.code }
+        assertTrue(codes.contains("AAK"))
+        assertTrue(!codes.contains("XYZ"))
+    }
+
+    @Test
+    fun search_code_prefix_still_matches() = runTest {
+        val (repository, _, _) = repo()
+        val outcome = repository.search("AAK")
+        assertTrue(outcome is SearchOutcome.Success)
+        assertEquals(listOf("AAK"), (outcome as SearchOutcome.Success).matches.map { it.code })
+    }
+
+    @Test
+    fun search_folded_query_does_not_match_unrelated() = runTest {
+        val (repository, _, _) = repo()
+        val outcome = repository.search("zzzz")
+        assertTrue(outcome is SearchOutcome.Success)
+        assertTrue((outcome as SearchOutcome.Success).matches.isEmpty())
     }
 }

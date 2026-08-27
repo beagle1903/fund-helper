@@ -10,10 +10,10 @@ import com.burha.fundhelper.domain.Clock
 import com.burha.fundhelper.domain.ExplanationMapper
 import com.burha.fundhelper.domain.FundSnapshot
 import com.burha.fundhelper.domain.ReturnKeys
+import com.burha.fundhelper.domain.foldForSearch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,7 +46,6 @@ class FundRepository @Inject constructor(
     private val clock: Clock,
     private val followBackup: FollowBackup,
 ) {
-    private val tr = Locale("tr", "TR")
     private var catalogMemory: List<FundSnapshot>? = null
     @Volatile private var lastRefreshSuccessAt: Long = -1L
 
@@ -165,9 +164,9 @@ class FundRepository @Inject constructor(
     }
 
     private fun matchesQuery(fund: FundSnapshot, raw: String): Boolean {
-        val q = raw.lowercase(tr)
-        val code = fund.code.lowercase(tr)
-        val name = fund.name.lowercase(tr)
+        val q = foldForSearch(raw)
+        val code = foldForSearch(fund.code)
+        val name = foldForSearch(fund.name)
         return code.startsWith(q) || name.contains(q)
     }
 

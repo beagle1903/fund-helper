@@ -26,7 +26,7 @@ Compose screens → ViewModels → FundRepository → Room
 
 - **Screens:** Watchlist (home, pull-to-refresh, empty CTA) → Search (code/name) → Detail (price, returns, type/risk/fees, Turkish explanation, disclaimer). Watchlist and search use teal Material 3 fund cards (`#038984`); detail uses the same theme with labeled sections and sign-colored returns.
 - **ViewModels:** UI state only. They depend on `FundRepository`, never on Room or HTTP.
-- **FundRepository:** the only UI-facing data API. Follows, snapshots, search, refresh. Mirrors follow codes to `FollowBackup`; restores into Room only when the follow table is empty.
+- **FundRepository:** the only UI-facing data API. Follows, snapshots, search, refresh. Search matching folds Turkish letters both ways (i/ı, ş/s, ğ/g, ü/u, ö/o, ç/c). Mirrors follow codes to `FollowBackup`; restores into Room only when the follow table is empty.
 - **Room:** live follows and last-known fund snapshots (app private sandbox; deleted on uninstall).
 - **FollowBackup:** on-device JSON of followed codes in shared Downloads. Not a server. Production is `MediaStoreFollowBackup`.
 - **TefasClient:** HTTP to current `tefas.gov.tr/api/funds/...` endpoints. Isolated so it can be swapped if the phone is blocked (Akamai / bot protection). Use a browser-like client first.

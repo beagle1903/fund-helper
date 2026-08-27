@@ -4,18 +4,16 @@
 
 ## Current status
 
-- UI polish is on `feat/ui-polish` (teal Material 3, fund cards, signed return colors). Spec is Approved.
-- Unit tests: 29/29 PASS (`FundRepositoryTest`, `FollowBackupCodecTest`, `ReturnSignTest` included). `assembleDebug` succeeded (`app/build/outputs/apk/debug/app-debug.apk`).
-- A23 was not on `adb devices` this session. Sideload skipped. Do **not** uninstall.
+- Turkish search fold is on `feat/turkish-search-fold`
+- Unit tests 37/37 PASS and `assembleDebug` succeeded this session (APK at `app/build/outputs/apk/debug/app-debug.apk`)
+- A23 sideload skipped this session (no USB) — do **not** uninstall
 
 ## Next
 
-- When the A23 is `device`: `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
-- Manual: empty watchlist, a followed card, search card, detail disclaimer visible, light and dark if the phone can switch.
-- Re-follow funds once so `Download/com.burha.fundhelper-follows.json` exists.
+- Sideload with `adb install -r` when the phone is `device`; manual search `yatirim` / `degisken` / `AAK`; re-follow so Downloads backup exists
 
 ## Blockers
 
-- USB empty this session; polish APK is not on the A23 yet.
-- Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered.
-- Expected later: TEFAS may challenge a mobile user-agent.
+- USB empty; fold APK (and polish) not verified on the A23 this session
+- Icon-refresh uninstall wiped the old follow list; that copy cannot be recovered; re-follow so `Download/com.burha.fundhelper-follows.json` exists
+- Expected later: TEFAS may challenge a mobile user-agent

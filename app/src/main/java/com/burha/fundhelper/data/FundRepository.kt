@@ -14,6 +14,8 @@ import com.burha.fundhelper.domain.foldForSearch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,6 +50,7 @@ class FundRepository @Inject constructor(
     private val followBackup: FollowBackup,
 ) {
     private var catalogMemory: List<FundSnapshot>? = null
+    private val refreshMutex = Mutex()
     @Volatile private var lastRefreshSuccessAt: Long = -1L
 
     fun observeWatchlist(): Flow<List<WatchlistRow>> = followDao.observeFollowed().map { rows ->
@@ -148,15 +151,15 @@ class FundRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshFollowed(force: Boolean): Result<Unit> {
+    suspend fun refreshFollowed(force: Boolean): Result<Unit> = refreshMutex.withLock {
         restoreFollowsIfNeeded()
         val codes = followDao.getCodes()
-        if (codes.isEmpty()) return Result.success(Unit)
+        if (codes.isEmpty()) return@withLock Result.success(Unit)
         val now = clock.nowMillis()
         if (!force && lastRefreshSuccessAt >= 0L && now - lastRefreshSuccessAt < FIVE_MINUTES_MS) {
-            return Result.success(Unit)
+            return@withLock Result.success(Unit)
         }
-        return try {
+        try {
             val catalog = tefas.fetchYatCatalog().associateBy { it.code }
             catalogMemory = catalog.values.toList()
             val prices = tefas.fetchLatestYatPrices().associateBy { it.code }

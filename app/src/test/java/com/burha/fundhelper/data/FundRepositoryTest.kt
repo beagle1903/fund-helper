@@ -295,4 +295,43 @@ class FundRepositoryTest {
         assertTrue(repository.observeWatchlist().first().isEmpty())
         assertEquals(listOf("AAK"), backup.codes)
     }
+
+    @Test
+    fun follow_all_appends_resolved_codes_and_writes_backup_once() = runTest {
+        val backup = FakeFollowBackup()
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        repository.follow("AAK")
+        val writesAfterFollow = backup.writeCount
+        repository.followAll(listOf("aak", "AAL", "NOPE", "RESET"))
+        assertEquals(listOf("AAK", "AAL"), repository.observeWatchlist().first().map { it.code })
+        assertEquals(listOf("AAK", "AAL"), backup.codes)
+        assertEquals(writesAfterFollow + 1, backup.writeCount)
+        assertNotNull(snapshots.get("AAL"))
+    }
+
+    @Test
+    fun follow_all_does_not_prefix_match() = runTest {
+        val (repository, _, _) = repo()
+        repository.followAll(listOf("AA"))
+        assertTrue(repository.observeWatchlist().first().isEmpty())
+    }
+
+    @Test
+    fun follow_all_empty_does_not_hit_client() = runTest {
+        val (repository, tefas, _) = repo()
+        repository.followAll(emptyList())
+        assertEquals(0, tefas.catalogCalls)
+    }
+
+    @Test
+    fun follow_all_catalog_failure_adds_nothing() = runTest {
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
+        val (repository, _, _) = repo(tefas)
+        repository.follow("AAK")
+        tefas.failCatalog = true
+        repository.followAll(listOf("AAL"))
+        assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+    }
 }

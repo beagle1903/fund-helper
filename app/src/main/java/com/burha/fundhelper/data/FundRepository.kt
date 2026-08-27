@@ -14,6 +14,7 @@ import com.burha.fundhelper.domain.foldForSearch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -89,6 +90,24 @@ class FundRepository @Inject constructor(
     suspend fun clearFollows() {
         followDao.deleteAll()
         persistBackup()
+    }
+
+    suspend fun followAll(codes: List<String>) {
+        if (codes.isEmpty()) return
+        try {
+            val catalog = loadCatalog(refetch = false)
+            val byCode = catalog.associateBy { it.code.uppercase(Locale.ROOT) }
+            val resolved = codes.mapNotNull { token ->
+                byCode[token.uppercase(Locale.ROOT)]
+            }.distinctBy { it.code }
+            if (resolved.isEmpty()) return
+            val now = clock.nowMillis()
+            resolved.forEach { fund -> followDao.insert(FollowEntity(fund.code)) }
+            snapshotDao.upsertAll(resolved.map { SnapshotMapper.toEntity(it.copy(fetchedAt = now)) })
+            persistBackup()
+        } catch (_: TefasFetchException) {
+            // Unknown-or-failed codes are skipped; do not wipe; do not throw.
+        }
     }
 
     suspend fun restoreFollowsIfNeeded() {

@@ -4,12 +4,13 @@
 
 ## Current status
 
-- `main` still has [PR #12](https://github.com/beagle1903/fund-helper/pull/12) (Turkish search fold). A23 last verified on that APK. Do **not** uninstall.
-- Branch `feat/watchlist-return-sort`: watchlist sorts by headline return (worst first, best last); empty **Fon ara** and search **Ara** are full-width. `testDebugUnitTest` and `assembleDebug` succeeded. USB had no device, so this APK is not on the phone yet.
+- Amendment on `feat/bulk-follow-reset` (not merged): Search **Ara** classifies exact `RESET` (clear Room follows + empty Downloads backup; snapshots stay), comma-separated exact catalog codes (`followAll` append, one backup write; keep existing snapshot price/priceDate when the catalog row has none), or today's text search. Reset and bulk follow pop to the watchlist. `RESET,` is not a wipe. Watchlist sort unchanged. `testDebugUnitTest` BUILD SUCCESSFUL.
+- `main` is at [PR #13](https://github.com/beagle1903/fund-helper/pull/13) (watchlist sort by headline return; full-width empty/search buttons).
+- A23 last verified on the [PR #12](https://github.com/beagle1903/fund-helper/pull/12) APK. The sort APK may still not be on the phone. No USB device this session. Sideload with `adb install -r` only. Do **not** uninstall.
 
 ## Next
 
-- Plug in the A23 and `adb install -r` this branch. Confirm a mixed-return watchlist (negative above positive; `—` at the bottom) and the full-width empty/search buttons.
+- Plug in the A23 and `adb install -r` this branch. Confirm: `AAK, AAL` lands on the watchlist with both followed and does **not** blank existing prices; unknown codes skipped; `RESET` empties the list and Downloads JSON (one file, empty codes); a single code still shows search results; `RESET, AAK` does not wipe.
 
 ## Blockers
 

@@ -20,6 +20,10 @@ class FakeFollowDao(
         codes.value = codes.value.filterNot { it == code }
     }
 
+    override suspend fun deleteAll() {
+        codes.value = emptyList()
+    }
+
     override suspend fun getCodes(): List<String> = codes.value
 
     override fun observeFollowed(): Flow<List<FollowedFund>> =

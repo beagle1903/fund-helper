@@ -14,6 +14,7 @@ import com.burha.fundhelper.domain.foldForSearch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -84,6 +85,41 @@ class FundRepository @Inject constructor(
     suspend fun unfollow(code: String) {
         followDao.delete(code)
         persistBackup()
+    }
+
+    suspend fun clearFollows() {
+        followDao.deleteAll()
+        persistBackup()
+    }
+
+    suspend fun followAll(codes: List<String>) {
+        if (codes.isEmpty()) return
+        try {
+            val catalog = loadCatalog(refetch = false)
+            val byCode = catalog.associateBy { it.code.uppercase(Locale.ROOT) }
+            val resolved = codes.mapNotNull { token ->
+                byCode[token.uppercase(Locale.ROOT)]
+            }.distinctBy { it.code }
+            if (resolved.isEmpty()) return
+            val now = clock.nowMillis()
+            resolved.forEach { fund -> followDao.insert(FollowEntity(fund.code)) }
+            val merged = resolved.map { listing ->
+                val previous = snapshotDao.get(listing.code)?.let(SnapshotMapper::toDomain)
+                listing.copy(
+                    price = listing.price ?: previous?.price,
+                    priceDate = listing.priceDate ?: previous?.priceDate,
+                    name = listing.name.takeIf { it.isNotBlank() } ?: previous?.name ?: listing.name,
+                    fundType = listing.fundType ?: previous?.fundType,
+                    risk = listing.risk ?: previous?.risk,
+                    returns = listing.returns.takeIf { it.isNotEmpty() } ?: previous?.returns ?: listing.returns,
+                    fetchedAt = now,
+                )
+            }
+            snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
+            persistBackup()
+        } catch (_: TefasFetchException) {
+            // Unknown-or-failed codes are skipped; do not wipe; do not throw.
+        }
     }
 
     suspend fun restoreFollowsIfNeeded() {

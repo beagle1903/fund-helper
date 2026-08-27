@@ -4,10 +4,12 @@ import com.burha.fundhelper.data.FollowBackup
 
 class FakeFollowBackup : FollowBackup {
     var codes: List<String> = emptyList()
+    var writeCount: Int = 0
     var writeError: Boolean = false
     var readError: Boolean = false
 
     override suspend fun writeCodes(codes: List<String>) {
+        writeCount += 1
         if (writeError) error("backup write failed")
         this.codes = codes
     }

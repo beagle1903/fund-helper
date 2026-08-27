@@ -55,7 +55,7 @@ Comma split: trim each token, drop empties, drop a token that equals `RESET` (an
 - No TEFAS call.
 - Delete every Room follow, then write an **empty** Downloads backup (one write). Snapshots may remain; they are cache.
 - No confirm. Pop to the empty watchlist.
-- `restoreFollowsIfNeeded` stays as-is (empty Room + empty backup → no restore). If the empty backup write fails, Room stays empty this session; a later launch may restore from a stale file (existing backup-miss behavior). Do not re-insert follows when the write fails.
+- `restoreFollowsIfNeeded` stays as-is (empty Room + empty backup → no restore). If the empty backup write fails, Room stays empty until restore runs. Popping to the watchlist runs restore (`WatchlistViewModel` init / `refreshFollowed`), so a stale Downloads file can restore the list immediately, not only on a later launch. Do not re-insert follows when the write fails.
 
 ## UI
 

@@ -103,7 +103,19 @@ class FundRepository @Inject constructor(
             if (resolved.isEmpty()) return
             val now = clock.nowMillis()
             resolved.forEach { fund -> followDao.insert(FollowEntity(fund.code)) }
-            snapshotDao.upsertAll(resolved.map { SnapshotMapper.toEntity(it.copy(fetchedAt = now)) })
+            val merged = resolved.map { listing ->
+                val previous = snapshotDao.get(listing.code)?.let(SnapshotMapper::toDomain)
+                listing.copy(
+                    price = listing.price ?: previous?.price,
+                    priceDate = listing.priceDate ?: previous?.priceDate,
+                    name = listing.name.takeIf { it.isNotBlank() } ?: previous?.name ?: listing.name,
+                    fundType = listing.fundType ?: previous?.fundType,
+                    risk = listing.risk ?: previous?.risk,
+                    returns = listing.returns.takeIf { it.isNotEmpty() } ?: previous?.returns ?: listing.returns,
+                    fetchedAt = now,
+                )
+            }
+            snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
             persistBackup()
         } catch (_: TefasFetchException) {
             // Unknown-or-failed codes are skipped; do not wipe; do not throw.

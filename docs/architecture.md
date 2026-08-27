@@ -49,6 +49,7 @@ The HTTP library (OkHttp or Ktor) lives only inside `TefasClient`. Choose it at 
 
 - Offline / TEFAS 4xx–5xx / Akamai challenge: last cache stays on screen.
 - Catalog failure during bulk follow: add nothing, no wipe, still pop, no snackbar.
+- Backup write failure after RESET: Room stays empty; a stale Downloads file can restore the list immediately on pop (WatchlistViewModel init / refresh), not only on a later launch.
 - Backup file unreadable: watchlist stays empty; Room is not wiped.
 - Tests use a fake `TefasClient` and a fake `FollowBackup`. Do not hit the live site from unit tests.
 

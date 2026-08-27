@@ -297,6 +297,19 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun follow_all_keeps_existing_price_on_already_followed_fund() = runTest {
+        val (repository, _, snapshots) = repo()
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        assertEquals(35.46, snapshots.get("AAK")?.price)
+        repository.followAll(listOf("AAK", "AAL"))
+        assertEquals(35.46, snapshots.get("AAK")?.price)
+        assertEquals("2026-08-21", snapshots.get("AAK")?.priceDate)
+        assertEquals(listOf("AAK", "AAL"), repository.observeWatchlist().first().map { it.code })
+        assertEquals(35.46, repository.observeWatchlist().first().first { it.code == "AAK" }.price)
+    }
+
+    @Test
     fun follow_all_appends_resolved_codes_and_writes_backup_once() = runTest {
         val backup = FakeFollowBackup()
         val snapshots = FakeSnapshotDao()

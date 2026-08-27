@@ -39,3 +39,11 @@
 **Decision:** `ExplanationMapper` turns official TEFAS fields into short Turkish sentences. No LLM, no buy/sell language, no holdings. Screens include “yatırım tavsiyesi değildir”.
 
 **Consequences:** Copy stays testable and SPK-safer. We do not invent facts that are not in the payload.
+
+## 006 - Follow codes mirrored to Downloads
+
+**Context:** Uninstalling to refresh the launcher icon wiped Room follows. The user asked for the list to be permanent on this phone. v1 has no server or accounts. Frozen v1 said uninstall clears data and `INTERNET` only.
+
+**Decision:** Keep Room as the live follow set. Mirror followed codes (not snapshots) to `Download/com.burha.fundhelper-follows.json` via MediaStore. Restore into Room only when the follow table is empty. Set `android:hasFragileUserData="true"` so Settings uninstall can keep the sandbox. Keep `allowBackup="true"`. No extra dangerous permission, no import UI, no all-files access.
+
+**Consequences:** `adb install -r` already kept Room; that remains the way to update the APK. After uninstall, restore works if the new install can still read the Downloads file (best-effort on API 33+). `adb uninstall` still wipes Room. Auto Backup may also restore if a cloud backup actually ran. The list already lost in the icon-refresh uninstall cannot be recovered.

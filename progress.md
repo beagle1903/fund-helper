@@ -5,7 +5,8 @@
 ## Current status
 
 - Watchlist Pay/Kişi + fetched-at moved to full-width `below` slot on `FundRowCard`; price stays in `supporting`. Search cards unchanged (no `below`). Living docs updated.
-- `:app:testDebugUnitTest` PASS (BUILD SUCCESSFUL, no live TEFAS). A23 sideload skipped (no device on `adb devices`).
+- `:app:testDebugUnitTest` PASS. Pay/investor APK (PR #17) is already on the A23. This layout change was not sideloaded (no device). Do **not** uninstall.
+- Codex SQLite `IN` bind-limit note left as-is.
 
 ## Next
 

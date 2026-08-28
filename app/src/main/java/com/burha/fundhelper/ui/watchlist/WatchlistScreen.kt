@@ -151,6 +151,8 @@ private fun WatchlistRowItem(
                 row.price?.let(::formatNumber) ?: dash,
                 style = MaterialTheme.typography.bodyLarge,
             )
+        },
+        below = {
             Text(
                 stringResource(
                     R.string.watchlist_pay_kisi,

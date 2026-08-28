@@ -4,13 +4,12 @@
 
 ## Current status
 
-- `main` is at [PR #15](https://github.com/beagle1903/fund-helper/pull/15) (refresh mutex + shared failed-refresh cache). Sideloaded on the A23 (`com.burha.fundhelper`). Do **not** uninstall.
-- Branch `feat/ci-unit-tests`: GitHub Actions runs `:app:testDebugUnitTest` on pull requests and on pushes to `main`. No live TEFAS. No emulator.
+- `main` is at [PR #16](https://github.com/beagle1903/fund-helper/pull/16). Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Actions (no live TEFAS, no emulator). The merge check was green.
+- Sideloaded on the A23 (`com.burha.fundhelper`). Do **not** uninstall.
 
 ## Next
 
-- Confirm the CI check appears on the PR.
-- On the phone: open the app, tap a followed fund while home is still refreshing. Confirm one TEFAS burst, not two.
+- On the phone: open the app, tap a followed fund while home is still refreshing. Confirm one TEFAS burst, not two. Pull-to-refresh still works.
 
 ## Blockers
 

@@ -55,3 +55,11 @@
 **Decision:** Remove the string from Detail and `R.string.disclaimer`. Living product docs drop the on-screen requirement. Frozen 2026-08-22 spec is historical. Mapper and screens still must not recommend buy/sell/hold. A store-facing disclaimer waits for Play.
 
 **Consequences:** Detail no longer shows that sentence. Play/SPK copy is a later product decision, not this pass.
+
+## 008 - Subagents preferred; PR at the end of each phase
+
+**Context:** Implementation can run inline in one chat or as fresh subagents per task. Specs and plans can sit uncommitted until a later “ship it” ask. That loses review isolation and leaves main without a reviewable slice.
+
+**Decision:** Subagent-driven execution is the default. Inline only if the user asks. A **phase** is one of: approved spec, implementation plan, or the code for that assignment. When a phase is done, commit and open a pull request. Do not stack spec + plan + implementation into one PR unless the user says so.
+
+**Consequences:** More PRs, smaller diffs. Agents must not wait for “push it” after finishing a phase. A23 sideload can still land in `progress.md` after the PR.

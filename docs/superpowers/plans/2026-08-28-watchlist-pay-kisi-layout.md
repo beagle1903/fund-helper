@@ -178,7 +178,7 @@ adb shell pm path com.burha.fundhelper
 
 Expected: A23 is `device`; install succeeds; `package:` path prints. Manual: followed card shows `Pay … · Kişi …` on one line under price/return; fetched-at under that; search card unchanged.
 
-If no device, skip install, write that in `progress.md`, and stop. Do not uninstall to retry.
+If no device, skip install, write that in `progress.md`, and continue with Step 7. Do not uninstall to retry.
 
 - [ ] **Step 7: Prune `progress.md`**
 
@@ -190,3 +190,25 @@ Replace Current status / Next with a short handoff: layout is in the tree; wheth
 git add app/src/main/java/com/burha/fundhelper/ui/FundRowCard.kt app/src/main/java/com/burha/fundhelper/ui/watchlist/WatchlistScreen.kt docs/architecture.md progress.md
 git commit -m "fix: put watchlist Pay/Kişi on a full-width row"
 ```
+
+- [ ] **Step 9: Open the implementation pull request**
+
+ADR 008: commit and open a PR at the end of the implementation phase. Do not leave this phase only in the working tree.
+
+```powershell
+git push -u origin HEAD
+gh pr create --title "fix: put watchlist Pay/Kişi on a full-width row" --body "$(cat <<'EOF'
+## Summary
+- Watchlist cards put Pay/Kişi on a full-width row under price/return.
+- Search cards unchanged.
+
+## Test plan
+- [ ] ``.\gradlew.bat :app:testDebugUnitTest``
+- [ ] Sideload with ``.\gradlew.bat :app:installDebug`` (do not uninstall) when the A23 is connected
+- [ ] Followed card: Pay and Kişi on one line under price/return; fetched-at below that
+- [ ] Search card unchanged
+EOF
+)"
+```
+
+On Windows PowerShell, use a here-string for `--body` if `cat <<'EOF'` is unavailable. Return the PR URL.

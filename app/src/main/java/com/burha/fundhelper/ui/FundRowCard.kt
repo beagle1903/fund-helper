@@ -22,6 +22,7 @@ fun FundRowCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     supporting: (@Composable () -> Unit)? = null,
+    below: (@Composable () -> Unit)? = null,
     trailing: @Composable () -> Unit,
 ) {
     Card(
@@ -30,27 +31,32 @@ fun FundRowCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(Modifier.weight(1f)) {
-                Text(code, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                supporting?.invoke()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(code, style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    supporting?.invoke()
+                }
+                Box(Modifier.weight(1f, fill = false)) {
+                    trailing()
+                }
             }
-            Box(Modifier.weight(1f, fill = false)) {
-                trailing()
-            }
+            below?.invoke()
         }
     }
 }

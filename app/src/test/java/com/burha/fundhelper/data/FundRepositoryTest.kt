@@ -8,6 +8,7 @@ import com.burha.fundhelper.fakes.FakeFollowBackup
 import com.burha.fundhelper.fakes.FakeFollowDao
 import com.burha.fundhelper.fakes.FakeSnapshotDao
 import com.burha.fundhelper.fakes.FakeTefasClient
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -145,6 +146,40 @@ class FundRepositoryTest {
         clock.now = 5 * 60 * 1000L
         repository.refreshFollowed(force = false)
         assertEquals(2, tefas.catalogCalls)
+    }
+
+    @Test
+    fun concurrent_unforced_refreshes_share_one_tefas_round_trip() = runTest {
+        val tefas = FakeTefasClient(
+            catalog = listOf(aak),
+            prices = listOf(aakPriced),
+            catalogHoldMs = 1_000L,
+        )
+        val (repository, _, _) = repo(tefas)
+        repository.follow("AAK")
+        val first = async { repository.refreshFollowed(force = false) }
+        val second = async { repository.refreshFollowed(force = false) }
+        assertTrue(first.await().isSuccess)
+        assertTrue(second.await().isSuccess)
+        assertEquals(1, tefas.catalogCalls)
+        assertEquals(1, tefas.priceCalls)
+    }
+
+    @Test
+    fun concurrent_unforced_refreshes_share_failure_result() = runTest {
+        val tefas = FakeTefasClient(
+            catalog = listOf(aak),
+            prices = listOf(aakPriced),
+            catalogHoldMs = 1_000L,
+        )
+        tefas.failCatalog = true
+        val (repository, _, _) = repo(tefas)
+        repository.follow("AAK")
+        val first = async { repository.refreshFollowed(force = false) }
+        val second = async { repository.refreshFollowed(force = false) }
+        assertTrue(first.await().isFailure)
+        assertTrue(second.await().isFailure)
+        assertEquals(1, tefas.catalogCalls)
     }
 
     @Test

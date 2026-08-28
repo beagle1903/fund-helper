@@ -166,6 +166,23 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun concurrent_unforced_refreshes_share_failure_result() = runTest {
+        val tefas = FakeTefasClient(
+            catalog = listOf(aak),
+            prices = listOf(aakPriced),
+            catalogHoldMs = 1_000L,
+        )
+        tefas.failCatalog = true
+        val (repository, _, _) = repo(tefas)
+        repository.follow("AAK")
+        val first = async { repository.refreshFollowed(force = false) }
+        val second = async { repository.refreshFollowed(force = false) }
+        assertTrue(first.await().isFailure)
+        assertTrue(second.await().isFailure)
+        assertEquals(1, tefas.catalogCalls)
+    }
+
+    @Test
     fun follow_and_unfollow_mirror_codes_to_device_backup() = runTest {
         val (repository, backup) = repoWithBackup()
         repository.follow("AAK")

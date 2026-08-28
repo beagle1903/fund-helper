@@ -51,7 +51,7 @@ class FundRepository @Inject constructor(
 ) {
     private var catalogMemory: List<FundSnapshot>? = null
     private val refreshMutex = Mutex()
-    @Volatile private var lastRefreshSuccessAt: Long = -1L
+    @Volatile private var lastRefreshResult: Pair<Result<Unit>, Long>? = null
 
     fun observeWatchlist(): Flow<List<WatchlistRow>> = followDao.observeFollowed().map { rows ->
         rows.map { followed ->
@@ -156,10 +156,11 @@ class FundRepository @Inject constructor(
         val codes = followDao.getCodes()
         if (codes.isEmpty()) return@withLock Result.success(Unit)
         val now = clock.nowMillis()
-        if (!force && lastRefreshSuccessAt >= 0L && now - lastRefreshSuccessAt < FIVE_MINUTES_MS) {
-            return@withLock Result.success(Unit)
+        val cached = lastRefreshResult
+        if (!force && cached != null && now - cached.second < FIVE_MINUTES_MS) {
+            return@withLock cached.first
         }
-        try {
+        val result = try {
             val catalog = tefas.fetchYatCatalog().associateBy { it.code }
             catalogMemory = catalog.values.toList()
             val prices = tefas.fetchLatestYatPrices().associateBy { it.code }
@@ -179,11 +180,12 @@ class FundRepository @Inject constructor(
                 )
             }
             snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
-            lastRefreshSuccessAt = now
             Result.success(Unit)
         } catch (e: TefasFetchException) {
             Result.failure(e)
         }
+        lastRefreshResult = result to now
+        result
     }
 
     private suspend fun loadCatalog(refetch: Boolean): List<FundSnapshot> {

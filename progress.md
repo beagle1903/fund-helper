@@ -5,7 +5,7 @@
 ## Current status
 
 - `main` is at [PR #14](https://github.com/beagle1903/fund-helper/pull/14) (bulk follow + RESET).
-- Branch `feat/refresh-inflight-guard`: `refreshFollowed` mutex so overlapping watchlist + detail auto-refreshes share one TEFAS round trip. Sideloaded on the A23 with `adb install -r` (`com.burha.fundhelper`). Do **not** uninstall.
+- Branch `feat/refresh-inflight-guard`: `refreshFollowed` mutex and result caching so overlapping watchlist + detail auto-refreshes share one TEFAS round trip (for both success and failure). Fixed code review feedback: failed refreshes are now cached and shared to prevent retry storms during TEFAS outages. Sideloaded on the A23 with `adb install -r` (`com.burha.fundhelper`). Do **not** uninstall.
 
 ## Next
 

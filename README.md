@@ -27,6 +27,10 @@ Package: `com.burha.fundhelper`
 
 See [`.cursor/skills/sideload-a23/SKILL.md`](.cursor/skills/sideload-a23/SKILL.md): USB debugging, then `adb install -r` of the debug APK.
 
+## CI
+
+Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Actions. No live TEFAS. No emulator.
+
 ## Docs
 
 | File | Role |

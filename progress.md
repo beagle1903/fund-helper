@@ -4,13 +4,13 @@
 
 ## Current status
 
-- Pay/kişi day-over-day % on watchlist + totals on detail are in the tree; on-screen disclaimer gone. Living docs updated (ADR 007). Do **not** uninstall (`com.burha.fundhelper`).
-- `:app:testDebugUnitTest` PASS (no live TEFAS). A23 sideload skipped this session (no device on `adb devices`).
+- Watchlist Pay/Kişi full-width line is on `main` (PR #21) and sideloaded on the A23 (`:app:installDebug`, `com.burha.fundhelper`). Do **not** uninstall.
+- Codex SQLite `IN` bind-limit note left as-is.
 
 ## Next
 
-- Sideload when A23 is connected (`.\gradlew.bat :app:installDebug`). Manual: followed card both %; detail totals + %; no disclaimer; search unchanged; airplane keeps list.
-- If pay/kişi counts show `—` on the phone, confirm TEFAS JSON keys (`tedPaySayisi` / `kisiSayisi`) against a live payload.
+- Manual on the phone: followed card `Pay … · Kişi …` on one line under price/return; fetched-at below that; search card unchanged.
+- If pay/kişi counts show `—`, confirm TEFAS JSON keys (`tedPaySayisi` / `kisiSayisi`) against a live payload.
 
 ## Blockers
 

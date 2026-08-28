@@ -2,7 +2,7 @@
 
 `fund-helper` is a follow-only watchlist of Turkish TEFAS yatırım fonları. Search funds, follow or unfollow them, and see the latest price and return. Fund detail explains type, risk, and fees in short Turkish, mapped from official TEFAS fields.
 
-It is not a chat consultant, broker, portfolio ledger, or investment adviser. Output is informational. Always treat it as “yatırım tavsiyesi değildir”.
+It is not a chat consultant, broker, portfolio ledger, or investment adviser. Output is informational. No buy/sell advice; Turkish explanations map official fields only.
 
 ## Durable facts
 
@@ -22,13 +22,14 @@ It is not a chat consultant, broker, portfolio ledger, or investment adviser. Ou
 - Search by fund code or name (YAT / yatırım fonları first).
 - Follow and unfollow. The watchlist is the home screen.
 - Show latest price and returns on the watchlist and on fund detail.
-- On detail: type, risk, fees, a short Turkish explanation from official fields, and the disclaimer.
+- Watchlist and detail show day-over-day % for TEFAS pay adedi (tedavül) and kişi (yatırımcı) counts; detail also shows the totals.
+- On detail: type, risk, fees, and a short Turkish explanation from official fields. No on-screen disclaimer.
 
 ## Non-goals (out of v1)
 
 - BES-only focus or BEFAS as the primary universe
 - Charts
-- Holdings, unit counts, or TL amounts
+- Holdings, TL amounts, or cost basis (pay adedi here is TEFAS tedavül, not the user’s own unit count)
 - Accounts, login, or a backend
 - iOS
 - LLM / chat consultant

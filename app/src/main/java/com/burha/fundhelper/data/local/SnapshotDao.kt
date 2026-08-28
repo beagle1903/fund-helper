@@ -19,4 +19,7 @@ interface SnapshotDao {
 
     @Query("SELECT * FROM snapshots WHERE code = :code")
     suspend fun get(code: String): SnapshotEntity?
+
+    @Query("SELECT * FROM snapshots WHERE code IN (:codes)")
+    suspend fun getByCodes(codes: List<String>): List<SnapshotEntity>
 }

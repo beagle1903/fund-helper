@@ -2,7 +2,7 @@
 
 Local follow-only watchlist of Turkish TEFAS yatırım fonları. Search by code or name, follow or unfollow, and see latest price, returns, type, risk, and fees. Fund detail explains official TEFAS fields in short Turkish.
 
-It is not a chat consultant, broker, or investment adviser. **Yatırım tavsiyesi değildir.**
+It is not a chat consultant, broker, or investment adviser. Informational only — not investment advice.
 
 ## Status
 
@@ -25,7 +25,7 @@ Package: `com.burha.fundhelper`
 
 ## Sideload (A23)
 
-See [`.cursor/skills/sideload-a23/SKILL.md`](.cursor/skills/sideload-a23/SKILL.md): USB debugging, then `adb install -r` of the debug APK.
+See [`.cursor/skills/sideload-a23/SKILL.md`](.cursor/skills/sideload-a23/SKILL.md): USB debugging, then `.\gradlew.bat :app:installDebug` (replaces the debug install, keeps Room). Do not uninstall.
 
 ## CI
 
@@ -44,4 +44,4 @@ Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Action
 
 ## License / advice
 
-Informational only. Not investment advice. **Yatırım tavsiyesi değildir.**
+Informational only. Not investment advice.

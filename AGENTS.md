@@ -20,3 +20,5 @@ Session rules:
 - Do not write implementation details in this file. Keep it as a short map/router.
 - When finishing a session, update `progress.md` with a pruned handoff (what works on the A23, blockers). Do not let it become a diary.
 - When writing Compose, Hilt, Room, OkHttp/Ktor, or Play Gradle DSL, fetch current docs via Context7. Do not guess APIs from training data.
+- Prefer subagents for execution (subagent-driven development). Do not default to inline.
+- At the end of each phase — spec, plan, or implementation — create a pull request. Do not leave that phase only in the working tree. See ADR 008.

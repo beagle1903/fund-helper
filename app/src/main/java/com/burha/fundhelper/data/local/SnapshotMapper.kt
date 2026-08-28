@@ -16,6 +16,10 @@ object SnapshotMapper {
         risk = snapshot.risk,
         feesJson = SnapshotJson.feesToJson(snapshot.fees.map { it.label to it.value }),
         fetchedAt = snapshot.fetchedAt,
+        payCount = snapshot.payCount,
+        prevPayCount = snapshot.prevPayCount,
+        investorCount = snapshot.investorCount,
+        prevInvestorCount = snapshot.prevInvestorCount,
     )
 
     fun toDomain(entity: SnapshotEntity): FundSnapshot = FundSnapshot(
@@ -29,5 +33,9 @@ object SnapshotMapper {
         risk = entity.risk,
         fees = SnapshotJson.feesFromJson(entity.feesJson).map { FeeLine(it.first, it.second) },
         fetchedAt = entity.fetchedAt,
+        payCount = entity.payCount,
+        prevPayCount = entity.prevPayCount,
+        investorCount = entity.investorCount,
+        prevInvestorCount = entity.prevInvestorCount,
     )
 }

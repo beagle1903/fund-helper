@@ -11,6 +11,7 @@ import com.burha.fundhelper.domain.ExplanationMapper
 import com.burha.fundhelper.domain.FundSnapshot
 import com.burha.fundhelper.domain.ReturnKeys
 import com.burha.fundhelper.domain.foldForSearch
+import com.burha.fundhelper.domain.percentChange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -27,6 +28,8 @@ data class WatchlistRow(
     val headlinePeriod: String?,
     val headlineReturn: Double?,
     val fetchedAt: Long?,
+    val payChangePct: Double?,
+    val investorChangePct: Double?,
 )
 
 data class FundDetail(
@@ -64,6 +67,8 @@ class FundRepository @Inject constructor(
                 headlinePeriod = headline?.first,
                 headlineReturn = headline?.second,
                 fetchedAt = snapshot?.fetchedAt,
+                payChangePct = percentChange(snapshot?.payCount, snapshot?.prevPayCount),
+                investorChangePct = percentChange(snapshot?.investorCount, snapshot?.prevInvestorCount),
             )
         }
     }
@@ -116,7 +121,7 @@ class FundRepository @Inject constructor(
                     risk = listing.risk ?: previous?.risk,
                     returns = listing.returns.takeIf { it.isNotEmpty() } ?: previous?.returns ?: listing.returns,
                     fetchedAt = now,
-                )
+                ).keepingPriceWindow(previous)
             }
             snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
             persistBackup()
@@ -143,9 +148,16 @@ class FundRepository @Inject constructor(
         return try {
             val catalog = loadCatalog(refetchCatalog)
             val matches = catalog.filter { fund -> matchesQuery(fund, needle) }
+            if (matches.isEmpty()) return SearchOutcome.Success(emptyList())
             val now = clock.nowMillis()
-            snapshotDao.upsertAll(matches.map { SnapshotMapper.toEntity(it.copy(fetchedAt = now)) })
-            SearchOutcome.Success(matches.map { it.copy(fetchedAt = now) })
+            val previousByCode = snapshotDao.getByCodes(matches.map { it.code })
+                .associateBy { it.code }
+            val merged = matches.map { match ->
+                val previous = previousByCode[match.code]?.let(SnapshotMapper::toDomain)
+                match.copy(fetchedAt = now).keepingPriceWindow(previous)
+            }
+            snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
+            SearchOutcome.Success(merged)
         } catch (e: TefasFetchException) {
             SearchOutcome.Failure(e.message ?: "TEFAS")
         }
@@ -169,15 +181,18 @@ class FundRepository @Inject constructor(
                 val priceRow = prices[code]
                 val previous = snapshotDao.get(code)?.let(SnapshotMapper::toDomain)
                 val base = listing ?: previous ?: priceRow ?: return@mapNotNull null
-                base.copy(
-                    price = priceRow?.price ?: base.price,
-                    priceDate = priceRow?.priceDate ?: base.priceDate,
+                val catalogMerged = base.copy(
                     name = listing?.name?.takeIf { it.isNotBlank() } ?: base.name,
                     fundType = listing?.fundType ?: base.fundType,
                     risk = listing?.risk ?: base.risk,
                     returns = listing?.returns?.takeIf { it.isNotEmpty() } ?: base.returns,
-                    fetchedAt = now,
                 )
+                val withWindow = if (priceRow != null) {
+                    catalogMerged.replacingPriceWindow(priceRow)
+                } else {
+                    catalogMerged.keepingPriceWindow(previous)
+                }
+                withWindow.copy(fetchedAt = now)
             }
             snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
             Result.success(Unit)
@@ -215,3 +230,21 @@ class FundRepository @Inject constructor(
         const val FIVE_MINUTES_MS = 5 * 60 * 1000L
     }
 }
+
+private fun FundSnapshot.replacingPriceWindow(from: FundSnapshot) = copy(
+    price = from.price,
+    priceDate = from.priceDate,
+    payCount = from.payCount,
+    prevPayCount = from.prevPayCount,
+    investorCount = from.investorCount,
+    prevInvestorCount = from.prevInvestorCount,
+)
+
+private fun FundSnapshot.keepingPriceWindow(from: FundSnapshot?) = copy(
+    price = price ?: from?.price,
+    priceDate = priceDate ?: from?.priceDate,
+    payCount = payCount ?: from?.payCount,
+    prevPayCount = prevPayCount ?: from?.prevPayCount,
+    investorCount = investorCount ?: from?.investorCount,
+    prevInvestorCount = prevInvestorCount ?: from?.prevInvestorCount,
+)

@@ -39,6 +39,39 @@ class TefasJsonMapperTest {
         assertTrue(funds.none { it.code == "AAL" })
     }
 
+    @Test
+    fun parses_pay_and_investor_from_latest_and_previous_priced_day() {
+        val funds = TefasJsonMapper.parseLatestPrices(fixture("yat-prices.json"))
+        val aak = funds.single { it.code == "AAK" }
+        assertEquals(35.46418, aak.price)
+        assertEquals("2026-08-21", aak.priceDate)
+        assertEquals(1100.0, aak.payCount)
+        assertEquals(1000.0, aak.prevPayCount)
+        assertEquals(110.0, aak.investorCount)
+        assertEquals(100.0, aak.prevInvestorCount)
+        val bbb = funds.single { it.code == "BBB" }
+        assertEquals(50.0, bbb.payCount)
+        assertNull(bbb.prevPayCount)
+        assertEquals(5.0, bbb.investorCount)
+        assertNull(bbb.prevInvestorCount)
+        assertTrue(funds.none { it.code == "AAL" })
+    }
+
+    @Test
+    fun missing_count_fields_are_null_not_a_fetch_error() {
+        val funds = TefasJsonMapper.parseLatestPrices(
+            """{"errorCode":null,"resultList":[
+              {"fonKodu":"ZZZ","fonUnvan":"X","tarih":"2026-08-20","fiyat":1.0},
+              {"fonKodu":"ZZZ","fonUnvan":"X","tarih":"2026-08-21","fiyat":2.0}
+            ]}""",
+        )
+        val zzz = funds.single { it.code == "ZZZ" }
+        assertNull(zzz.payCount)
+        assertNull(zzz.prevPayCount)
+        assertNull(zzz.investorCount)
+        assertNull(zzz.prevInvestorCount)
+    }
+
     @Test(expected = TefasFetchException::class)
     fun rejects_html_challenge_as_failure() {
         TefasJsonMapper.parseCatalog(fixture("challenge.html"))

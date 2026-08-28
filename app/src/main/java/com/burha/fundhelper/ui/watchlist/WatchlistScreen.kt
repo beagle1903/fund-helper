@@ -39,6 +39,7 @@ import com.burha.fundhelper.ui.FundRowCard
 import com.burha.fundhelper.ui.ReturnPercentText
 import com.burha.fundhelper.ui.formatFetchedAt
 import com.burha.fundhelper.ui.formatNumber
+import com.burha.fundhelper.ui.formatSignedPercent
 import com.burha.fundhelper.ui.periodLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -149,6 +150,15 @@ private fun WatchlistRowItem(
             Text(
                 row.price?.let(::formatNumber) ?: dash,
                 style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                stringResource(
+                    R.string.watchlist_pay_kisi,
+                    formatSignedPercent(row.payChangePct, dash),
+                    formatSignedPercent(row.investorChangePct, dash),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             row.fetchedAt?.let {
                 Text(

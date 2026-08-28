@@ -15,4 +15,8 @@ data class SnapshotEntity(
     val risk: String?,
     val feesJson: String,
     val fetchedAt: Long,
+    val payCount: Double? = null,
+    val prevPayCount: Double? = null,
+    val investorCount: Double? = null,
+    val prevInvestorCount: Double? = null,
 )

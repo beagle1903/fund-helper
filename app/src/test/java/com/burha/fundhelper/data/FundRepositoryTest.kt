@@ -34,6 +34,12 @@ class FundRepositoryTest {
     private val aal = aak.copy(code = "AAL", name = "ATA PORTFÖY PARA PİYASASI (TL) FONU")
     private val yatirimFon = aak.copy(code = "XYZ", name = "ÖRNEK YATIRIM FONU")
     private val aakPriced = aak.copy(price = 35.46, priceDate = "2026-08-21")
+    private val aakCounted = aakPriced.copy(
+        payCount = 1100.0,
+        prevPayCount = 1000.0,
+        investorCount = 110.0,
+        prevInvestorCount = 100.0,
+    )
 
     private fun repo(
         tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal, yatirimFon), prices = listOf(aakPriced)),
@@ -381,5 +387,89 @@ class FundRepositoryTest {
         tefas.failCatalog = true
         repository.followAll(listOf("AAL"))
         assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+    }
+
+    @Test
+    fun refresh_price_row_overwrites_counts_including_nulls() = runTest {
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        val row = repository.observeWatchlist().first().single()
+        assertEquals(10.0, row.payChangePct)
+        assertEquals(10.0, row.investorChangePct)
+        tefas.prices = listOf(aakPriced.copy(price = 36.0, priceDate = "2026-08-22"))
+        repository.refreshFollowed(force = true)
+        val cleared = repository.observeWatchlist().first().single()
+        assertEquals(36.0, cleared.price)
+        assertNull(cleared.payChangePct)
+        assertNull(cleared.investorChangePct)
+        assertNull(snapshots.get("AAK")?.payCount)
+    }
+
+    @Test
+    fun refresh_without_price_row_keeps_counts() = runTest {
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        tefas.prices = emptyList()
+        repository.refreshFollowed(force = true)
+        val row = repository.observeWatchlist().first().single()
+        assertEquals(10.0, row.payChangePct)
+        assertEquals(35.46, row.price)
+    }
+
+    @Test
+    fun refresh_failure_keeps_counts() = runTest {
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        tefas.failCatalog = true
+        val failed = repository.refreshFollowed(force = true)
+        assertTrue(failed.isFailure)
+        assertEquals(10.0, repository.observeWatchlist().first().single().payChangePct)
+    }
+
+    @Test
+    fun search_does_not_wipe_price_or_counts() = runTest {
+        val snapshots = FakeSnapshotDao()
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
+        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        repository.search("AAK")
+        val entity = snapshots.get("AAK")
+        assertEquals(35.46, entity?.price)
+        assertEquals(1100.0, entity?.payCount)
+        assertEquals(1000.0, entity?.prevPayCount)
+        val row = repository.observeWatchlist().first().single()
+        assertEquals(10.0, row.payChangePct)
+    }
+
+    @Test
+    fun search_batches_previous_snapshots_via_getByCodes() = runTest {
+        val snapshots = FakeSnapshotDao()
+        val (repository, _, _) = repo(snapshots = snapshots)
+        val getsBefore = snapshots.getCalls
+        val outcome = repository.search("ata")
+        assertTrue(outcome is SearchOutcome.Success)
+        assertEquals(2, (outcome as SearchOutcome.Success).matches.size)
+        assertEquals(1, snapshots.getByCodesCalls)
+        assertEquals(getsBefore, snapshots.getCalls)
+    }
+
+    @Test
+    fun follow_all_keeps_counts_on_already_followed_fund() = runTest {
+        val (repository, _, snapshots) = repo(tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakCounted)))
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        repository.followAll(listOf("AAK", "AAL"))
+        assertEquals(1100.0, snapshots.get("AAK")?.payCount)
+        assertEquals(1000.0, snapshots.get("AAK")?.prevPayCount)
     }
 }

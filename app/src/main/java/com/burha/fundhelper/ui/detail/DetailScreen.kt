@@ -33,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burha.fundhelper.R
 import com.burha.fundhelper.domain.ReturnKeys
+import com.burha.fundhelper.domain.percentChange
 import com.burha.fundhelper.ui.ReturnPercentText
+import com.burha.fundhelper.ui.formatCount
 import com.burha.fundhelper.ui.formatFetchedAt
 import com.burha.fundhelper.ui.formatNumber
+import com.burha.fundhelper.ui.formatSignedPercent
 import com.burha.fundhelper.ui.periodLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,6 +140,22 @@ fun DetailScreen(
                         }
                     }
                     Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.detail_pay), style = MaterialTheme.typography.titleSmall)
+                    CountChangeLine(
+                        count = snapshot.payCount,
+                        changePct = percentChange(snapshot.payCount, snapshot.prevPayCount),
+                        missing = missing,
+                        dash = dash,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(R.string.detail_investors), style = MaterialTheme.typography.titleSmall)
+                    CountChangeLine(
+                        count = snapshot.investorCount,
+                        changePct = percentChange(snapshot.investorCount, snapshot.prevInvestorCount),
+                        missing = missing,
+                        dash = dash,
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         stringResource(R.string.detail_type),
                         style = MaterialTheme.typography.titleSmall,
@@ -159,12 +178,6 @@ fun DetailScreen(
                         snapshot.fees.forEach { Text("${it.label}: ${it.value}") }
                     }
                     Text(detail.explanation, modifier = Modifier.padding(top = 16.dp))
-                    Text(
-                        stringResource(R.string.disclaimer),
-                        modifier = Modifier.padding(top = 16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                     Button(
                         onClick = viewModel::toggleFollow,
                         modifier = Modifier.padding(top = 16.dp),
@@ -177,5 +190,22 @@ fun DetailScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CountChangeLine(
+    count: Double?,
+    changePct: Double?,
+    missing: String,
+    dash: String,
+) {
+    if (count == null) {
+        Text(missing)
+    } else {
+        Text(
+            "${formatCount(count)}  ${formatSignedPercent(changePct, dash)}",
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
 }

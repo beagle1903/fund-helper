@@ -47,29 +47,48 @@ object TefasJsonMapper {
     }
 
     fun parseLatestPrices(body: String): List<FundSnapshot> {
-        val best = linkedMapOf<String, FundSnapshot>()
+        data class Day(
+            val name: String,
+            val price: Double,
+            val payCount: Double?,
+            val investorCount: Double?,
+        )
+        val byCode = linkedMapOf<String, LinkedHashMap<String, Day>>()
         for (row in resultList(body)) {
             val code = row.string("fonKodu")?.trim().orEmpty()
             val price = row.double("fiyat") ?: continue
             if (code.isEmpty() || price <= 0.0) continue
-            val date = row.string("tarih")?.take(10)
-            val current = best[code]
-            if (current == null || (date ?: "") >= (current.priceDate ?: "")) {
-                best[code] = FundSnapshot(
-                    code = code,
-                    name = row.string("fonUnvan").orEmpty(),
-                    kind = FundKind.YAT,
-                    price = price,
-                    priceDate = date,
-                    returns = emptyMap(),
-                    fundType = null,
-                    risk = null,
-                    fees = emptyList(),
-                    fetchedAt = 0L,
-                )
-            }
+            val date = row.string("tarih")?.take(10) ?: continue
+            val days = byCode.getOrPut(code) { linkedMapOf() }
+            days[date] = Day(
+                name = row.string("fonUnvan").orEmpty(),
+                price = price,
+                payCount = row.double("tedPaySayisi"),
+                investorCount = row.double("kisiSayisi"),
+            )
         }
-        return best.values.toList()
+        return byCode.map { (code, days) ->
+            val ordered = days.keys.sortedDescending()
+            val latestDate = ordered.first()
+            val latest = days.getValue(latestDate)
+            val previous = ordered.getOrNull(1)?.let { days.getValue(it) }
+            FundSnapshot(
+                code = code,
+                name = latest.name,
+                kind = FundKind.YAT,
+                price = latest.price,
+                priceDate = latestDate,
+                returns = emptyMap(),
+                fundType = null,
+                risk = null,
+                fees = emptyList(),
+                fetchedAt = 0L,
+                payCount = latest.payCount,
+                prevPayCount = previous?.payCount,
+                investorCount = latest.investorCount,
+                prevInvestorCount = previous?.investorCount,
+            )
+        }
     }
 
     private fun resultList(body: String): List<JsonObject> {

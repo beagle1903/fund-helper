@@ -6,6 +6,7 @@ import com.burha.fundhelper.data.FollowBackup
 import com.burha.fundhelper.data.MediaStoreFollowBackup
 import com.burha.fundhelper.data.local.AppDatabase
 import com.burha.fundhelper.data.local.FollowDao
+import com.burha.fundhelper.data.local.MIGRATION_1_2
 import com.burha.fundhelper.data.local.SnapshotDao
 import com.burha.fundhelper.data.tefas.OkHttpTefasClient
 import com.burha.fundhelper.domain.Clock
@@ -32,7 +33,9 @@ object AppModule {
     @Provides
     @Singleton
     fun database(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, "fund-helper.db").build()
+        Room.databaseBuilder(context, AppDatabase::class.java, "fund-helper.db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     fun followDao(db: AppDatabase): FollowDao = db.followDao()

@@ -4,12 +4,13 @@
 
 ## Current status
 
-- `main` is at [PR #16](https://github.com/beagle1903/fund-helper/pull/16). Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Actions (no live TEFAS, no emulator). The merge check was green.
-- Sideloaded on the A23 (`com.burha.fundhelper`). Do **not** uninstall.
+- Pay/kişi day-over-day % on watchlist + totals on detail are in the tree; on-screen disclaimer gone. Living docs updated (ADR 007). Do **not** uninstall (`com.burha.fundhelper`).
+- `:app:testDebugUnitTest` PASS (no live TEFAS). A23 sideload skipped this session (no device on `adb devices`).
 
 ## Next
 
-- On the phone: open the app, tap a followed fund while home is still refreshing. Confirm one TEFAS burst, not two. Pull-to-refresh still works.
+- Sideload when A23 is connected (`.\gradlew.bat :app:installDebug`). Manual: followed card both %; detail totals + %; no disclaimer; search unchanged; airplane keeps list.
+- If pay/kişi counts show `—` on the phone, confirm TEFAS JSON keys (`tedPaySayisi` / `kisiSayisi`) against a live payload.
 
 ## Blockers
 

@@ -25,7 +25,7 @@ Package: `com.burha.fundhelper`
 
 ## Sideload (A23)
 
-See [`.cursor/skills/sideload-a23/SKILL.md`](.cursor/skills/sideload-a23/SKILL.md): USB debugging, then `adb install -r` of the debug APK.
+See [`.cursor/skills/sideload-a23/SKILL.md`](.cursor/skills/sideload-a23/SKILL.md): USB debugging, then `.\gradlew.bat :app:installDebug` (replaces the debug install, keeps Room). Do not uninstall.
 
 ## CI
 

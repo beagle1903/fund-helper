@@ -36,9 +36,9 @@
 
 **Context:** Fund detail should help a non-expert read type, risk, and fees without becoming a consultant.
 
-**Decision:** `ExplanationMapper` turns official TEFAS fields into short Turkish sentences. No LLM, no buy/sell language, no holdings. Screens include “yatırım tavsiyesi değildir”.
+**Decision:** `ExplanationMapper` turns official TEFAS fields into short Turkish sentences. No LLM, no buy/sell language, no holdings. Screens no longer include an on-screen disclaimer sentence; the mapper still has no buy/sell language.
 
-**Consequences:** Copy stays testable and SPK-safer. We do not invent facts that are not in the payload.
+**Consequences:** Copy stays testable and SPK-safer. We do not invent facts that are not in the payload. Detail no longer shows “Yatırım tavsiyesi değildir.”
 
 ## 006 - Follow codes mirrored to Downloads
 
@@ -47,3 +47,11 @@
 **Decision:** Keep Room as the live follow set. Mirror followed codes (not snapshots) to `Download/com.burha.fundhelper-follows.json` via MediaStore. Restore into Room only when the follow table is empty. Set `android:hasFragileUserData="true"` so Settings uninstall can keep the sandbox. Keep `allowBackup="true"`. No extra dangerous permission, no import UI, no all-files access.
 
 **Consequences:** `adb install -r` already kept Room; that remains the way to update the APK. After uninstall, restore works if the new install can still read the Downloads file (best-effort on API 33+). `adb uninstall` still wipes Room. Auto Backup may also restore if a cloud backup actually ran. The list already lost in the icon-refresh uninstall cannot be recovered.
+
+## 007 - On-screen disclaimer removed
+
+**Context:** v1 showed “Yatırım tavsiyesi değildir.” as body text on detail. The first user does not want that line on the phone.
+
+**Decision:** Remove the string from Detail and `R.string.disclaimer`. Living product docs drop the on-screen requirement. Frozen 2026-08-22 spec is historical. Mapper and screens still must not recommend buy/sell/hold. A store-facing disclaimer waits for Play.
+
+**Consequences:** Detail no longer shows that sentence. Play/SPK copy is a later product decision, not this pass.

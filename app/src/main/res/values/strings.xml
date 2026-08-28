@@ -5,6 +5,7 @@
     <string name="watchlist_empty_title">Takip ettiğiniz fon yok.</string>
     <string name="watchlist_empty_body">Kod veya ad ile fon arayın.</string>
     <string name="watchlist_empty_cta">Fon ara</string>
+    <string name="watchlist_pay_kisi">Pay %1$s · Kişi %2$s</string>
     <string name="search_title">Fon ara</string>
     <string name="search_hint">Kod veya fon adı</string>
     <string name="search_empty_query">Kod veya fon adı yazın.</string>
@@ -12,7 +13,6 @@
     <string name="search_action">Ara</string>
     <string name="fetch_error">TEFAS verisi alınamadı.</string>
     <string name="retry">Yeniden dene</string>
-    <string name="disclaimer">Yatırım tavsiyesi değildir.</string>
     <string name="missing_field">TEFAS kaydında bu bilgi yok.</string>
     <string name="detail_title">Fon detayı</string>
     <string name="detail_missing">Bu fon bulunamadı.</string>
@@ -20,6 +20,8 @@
     <string name="detail_type">Fon türü</string>
     <string name="detail_risk">Risk</string>
     <string name="detail_fees">Ücretler</string>
+    <string name="detail_pay">Pay adedi</string>
+    <string name="detail_investors">Yatırımcı sayısı</string>
     <string name="follow">Takip et</string>
     <string name="unfollow">Takipten çıkar</string>
     <string name="back">Geri</string>

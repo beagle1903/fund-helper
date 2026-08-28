@@ -5,13 +5,25 @@
       "fonKodu": "AAK",
       "fonUnvan": "ATA PORTFÖY ÇOKLU VARLIK DEĞİŞKEN FON",
       "tarih": "2026-08-20",
-      "fiyat": 34.1
+      "fiyat": 34.1,
+      "tedPaySayisi": 1000,
+      "kisiSayisi": 100
     },
     {
       "fonKodu": "AAK",
       "fonUnvan": "ATA PORTFÖY ÇOKLU VARLIK DEĞİŞKEN FON",
       "tarih": "2026-08-21",
-      "fiyat": 35.46418
+      "fiyat": 35.46418,
+      "tedPaySayisi": 1100,
+      "kisiSayisi": 110
+    },
+    {
+      "fonKodu": "BBB",
+      "fonUnvan": "TEK GÜN FON",
+      "tarih": "2026-08-21",
+      "fiyat": 1.5,
+      "tedPaySayisi": 50,
+      "kisiSayisi": 5
     },
     {
       "fonKodu": "AAL",

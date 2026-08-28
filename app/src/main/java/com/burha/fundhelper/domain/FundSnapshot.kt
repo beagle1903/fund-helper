@@ -18,6 +18,10 @@ data class FundSnapshot(
     val risk: String?,
     val fees: List<FeeLine>,
     val fetchedAt: Long,
+    val payCount: Double? = null,
+    val prevPayCount: Double? = null,
+    val investorCount: Double? = null,
+    val prevInvestorCount: Double? = null,
 )
 
 object ReturnKeys {

@@ -9,6 +9,11 @@ import kotlinx.coroutines.flow.map
 class FakeSnapshotDao : SnapshotDao {
     private val rows = MutableStateFlow<Map<String, SnapshotEntity>>(emptyMap())
 
+    var getCalls: Int = 0
+        private set
+    var getByCodesCalls: Int = 0
+        private set
+
     fun observeAll(): Flow<Map<String, SnapshotEntity>> = rows
 
     override suspend fun upsert(entity: SnapshotEntity) {
@@ -22,5 +27,14 @@ class FakeSnapshotDao : SnapshotDao {
     override fun observe(code: String): Flow<SnapshotEntity?> =
         rows.map { it[code] }
 
-    override suspend fun get(code: String): SnapshotEntity? = rows.value[code]
+    override suspend fun get(code: String): SnapshotEntity? {
+        getCalls += 1
+        return rows.value[code]
+    }
+
+    override suspend fun getByCodes(codes: List<String>): List<SnapshotEntity> {
+        getByCodesCalls += 1
+        val byCode = rows.value
+        return codes.mapNotNull { byCode[it] }
+    }
 }

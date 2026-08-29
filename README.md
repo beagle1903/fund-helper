@@ -8,6 +8,18 @@ It is not a chat consultant, broker, or investment adviser. Informational only �
 
 Personal debug APK on a Samsung Galaxy A23 first. Play Store is later. Follows and snapshots stay on the phone (Room). No accounts or backend in v1.
 
+## Screenshots
+
+Wireframes of the v1 screens (sample TEFAS-style data, not live prices).
+
+| Takip listesi | Boş liste |
+| --- | --- |
+| <img src="docs/screenshots/watchlist.png" alt="Takip listesi" width="240"> | <img src="docs/screenshots/watchlist-empty.png" alt="Boş takip listesi" width="240"> |
+
+| Fon ara | Fon detayı |
+| --- | --- |
+| <img src="docs/screenshots/search.png" alt="Fon ara" width="240"> | <img src="docs/screenshots/detail.png" alt="Fon detayı" width="240"> |
+
 ## Stack
 
 Kotlin, Jetpack Compose, Hilt, Room. UI talks only to `FundRepository`, which uses Room and a swappable `TefasClient` (`tefas.gov.tr` JSON).

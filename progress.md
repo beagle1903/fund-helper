@@ -4,13 +4,12 @@
 
 ## Current status
 
-- Watchlist Pay/Kişi full-width line is on `main` (PR #21) and sideloaded on the A23 (`:app:installDebug`, `com.burha.fundhelper`). Do **not** uninstall.
-- Codex SQLite `IN` bind-limit note left as-is.
+- Günlük is on this branch (`cursor/app-event-log-3149`); watchlist overflow opens it. Session-only in-memory log; snackbar behavior unchanged.
+- Sideload skipped (no A23 / `adb` on this VM).
 
 ## Next
 
-- Manual on the phone: followed card `Pay … · Kişi …` on one line under price/return; fetched-at below that; search card unchanged.
-- If pay/kişi counts show `—`, confirm TEFAS JSON keys (`tedPaySayisi` / `kisiSayisi`) against a live payload.
+- Manual on A23: empty Günlük on fresh launch; airplane-mode refresh shows HATA with HTTP/network detail; **Temizle** clears the list.
 
 ## Blockers
 

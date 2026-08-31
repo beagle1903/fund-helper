@@ -46,9 +46,10 @@ class FundRepositoryTest {
         snapshots: FakeSnapshotDao = FakeSnapshotDao(),
         clock: FakeClock = FakeClock(),
         backup: FakeFollowBackup = FakeFollowBackup(),
+        events: AppEventLog = AppEventLog(clock),
     ): Triple<FundRepository, FakeTefasClient, FakeSnapshotDao> {
         val follows = FakeFollowDao(snapshots)
-        val repository = FundRepository(follows, snapshots, tefas, clock, backup)
+        val repository = FundRepository(follows, snapshots, tefas, clock, backup, events)
         return Triple(repository, tefas, snapshots)
     }
 
@@ -57,9 +58,10 @@ class FundRepositoryTest {
         tefas: FakeTefasClient = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced)),
         snapshots: FakeSnapshotDao = FakeSnapshotDao(),
         clock: FakeClock = FakeClock(),
+        events: AppEventLog = AppEventLog(clock),
     ): Pair<FundRepository, FakeFollowBackup> {
         val follows = FakeFollowDao(snapshots)
-        return FundRepository(follows, snapshots, tefas, clock, backup) to backup
+        return FundRepository(follows, snapshots, tefas, clock, backup, events) to backup
     }
 
     @Test
@@ -108,6 +110,24 @@ class FundRepositoryTest {
         val rows = repository.observeWatchlist().first()
         assertEquals(listOf("AAK"), rows.map { it.code })
         assertEquals(35.46, rows.single().price)
+    }
+
+    @Test
+    fun refresh_price_failure_logs_catalog_ok_then_prices_error() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakPriced), failPrices = true)
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), events,
+        )
+        repository.follow("AAK")
+        events.clear()
+        assertTrue(repository.refreshFollowed(force = true).isFailure)
+        val kinds = events.observe().first().map { it.kind }
+        assertEquals(listOf(AppEventKind.TefasPricesError, AppEventKind.TefasCatalogOk), kinds)
+        assertEquals("prices failed", events.observe().first().first().detail)
+        assertEquals(AppEventLevel.Error, events.observe().first().first().level)
     }
 
     @Test
@@ -209,6 +229,20 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun restore_logs_info() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val backup = FakeFollowBackup().apply { codes = listOf("AAL", "AAK") }
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, FakeTefasClient(), clock, backup, events,
+        )
+        repository.restoreFollowsIfNeeded()
+        val restored = events.observe().first().first { it.kind == AppEventKind.BackupRestored }
+        assertEquals(2, restored.count)
+    }
+
+    @Test
     fun restore_does_not_readd_unfollowed_codes_when_room_has_follows() = runTest {
         val backup = FakeFollowBackup()
         val (repository, _) = repoWithBackup(backup)
@@ -228,6 +262,21 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun backup_write_failure_logs_error() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val backup = FakeFollowBackup().apply { writeError = true }
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, FakeTefasClient(), clock, backup, events,
+        )
+        repository.follow("AAK")
+        val kinds = events.observe().first().map { it.kind }
+        assertTrue(kinds.contains(AppEventKind.FollowAdded))
+        assertTrue(kinds.contains(AppEventKind.BackupWriteFailed))
+    }
+
+    @Test
     fun restore_read_failure_leaves_watchlist_empty() = runTest {
         val backup = FakeFollowBackup().apply {
             codes = listOf("AAK")
@@ -239,11 +288,31 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun restore_read_failure_logs_error() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val backup = FakeFollowBackup().apply {
+            codes = listOf("AAK")
+            readError = true
+        }
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, FakeTefasClient(), clock, backup, events,
+        )
+        repository.restoreFollowsIfNeeded()
+        val logged = events.observe().first()
+        assertEquals(listOf(AppEventKind.BackupReadFailed), logged.map { it.kind })
+    }
+
+    @Test
     fun refresh_restores_followed_codes_before_fetch() = runTest {
         val backup = FakeFollowBackup().apply { codes = listOf("AAK") }
         val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
         val snapshots = FakeSnapshotDao()
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, backup, AppEventLog(clock),
+        )
         val result = repository.refreshFollowed(force = true)
         assertTrue(result.isSuccess)
         assertEquals(1, tefas.catalogCalls)
@@ -306,7 +375,10 @@ class FundRepositoryTest {
         val backup = FakeFollowBackup()
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, backup, AppEventLog(clock),
+        )
         repository.search("AAK")
         repository.follow("AAK")
         repository.follow("AAL")
@@ -355,7 +427,10 @@ class FundRepositoryTest {
         val backup = FakeFollowBackup()
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), backup)
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, backup, AppEventLog(clock),
+        )
         repository.follow("AAK")
         val writesAfterFollow = backup.writeCount
         repository.followAll(listOf("aak", "AAL", "NOPE", "RESET"))
@@ -390,10 +465,32 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun follow_all_catalog_failure_logs_error_and_does_not_wipe() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced))
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), events,
+        )
+        repository.follow("AAK")
+        tefas.failCatalog = true
+        events.clear()
+        repository.followAll(listOf("AAL"))
+        assertEquals(listOf("AAK"), repository.observeWatchlist().first().map { it.code })
+        val logged = events.observe().first()
+        assertEquals(listOf(AppEventKind.TefasCatalogError), logged.map { it.kind })
+        assertEquals("catalog failed", logged.single().detail)
+    }
+
+    @Test
     fun refresh_price_row_overwrites_counts_including_nulls() = runTest {
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), AppEventLog(clock),
+        )
         repository.follow("AAK")
         repository.refreshFollowed(force = true)
         val row = repository.observeWatchlist().first().single()
@@ -412,7 +509,10 @@ class FundRepositoryTest {
     fun refresh_without_price_row_keeps_counts() = runTest {
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), AppEventLog(clock),
+        )
         repository.follow("AAK")
         repository.refreshFollowed(force = true)
         tefas.prices = emptyList()
@@ -426,7 +526,10 @@ class FundRepositoryTest {
     fun refresh_failure_keeps_counts() = runTest {
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), AppEventLog(clock),
+        )
         repository.follow("AAK")
         repository.refreshFollowed(force = true)
         tefas.failCatalog = true
@@ -439,7 +542,10 @@ class FundRepositoryTest {
     fun search_does_not_wipe_price_or_counts() = runTest {
         val snapshots = FakeSnapshotDao()
         val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakCounted))
-        val repository = FundRepository(FakeFollowDao(snapshots), snapshots, tefas, FakeClock(), FakeFollowBackup())
+        val clock = FakeClock()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), AppEventLog(clock),
+        )
         repository.follow("AAK")
         repository.refreshFollowed(force = true)
         repository.search("AAK")
@@ -464,6 +570,23 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun search_failure_logs_catalog_and_search_errors() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val tefas = FakeTefasClient(failCatalog = true)
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), events,
+        )
+        val outcome = repository.search("AAK")
+        assertTrue(outcome is SearchOutcome.Failure)
+        assertEquals(
+            listOf(AppEventKind.SearchFailed, AppEventKind.TefasCatalogError),
+            events.observe().first().map { it.kind },
+        )
+    }
+
+    @Test
     fun follow_all_keeps_counts_on_already_followed_fund() = runTest {
         val (repository, _, snapshots) = repo(tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakCounted)))
         repository.follow("AAK")
@@ -471,5 +594,21 @@ class FundRepositoryTest {
         repository.followAll(listOf("AAK", "AAL"))
         assertEquals(1100.0, snapshots.get("AAK")?.payCount)
         assertEquals(1000.0, snapshots.get("AAK")?.prevPayCount)
+    }
+
+    @Test
+    fun refresh_skip_logs_info() = runTest {
+        val clock = FakeClock()
+        val events = AppEventLog(clock)
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakPriced))
+        val snapshots = FakeSnapshotDao()
+        val repository = FundRepository(
+            FakeFollowDao(snapshots), snapshots, tefas, clock, FakeFollowBackup(), events,
+        )
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+        events.clear()
+        assertTrue(repository.refreshFollowed(force = false).isSuccess)
+        assertEquals(listOf(AppEventKind.TefasRefreshSkipped), events.observe().first().map { it.kind })
     }
 }

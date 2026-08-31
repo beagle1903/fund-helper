@@ -45,6 +45,8 @@ Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Action
 
 ## Docs
 
+Wiki: [Product overview](https://github.com/beagle1903/fund-helper/wiki) (Home, Product, Architecture). Canonical docs stay in this repo.
+
 | File | Role |
 |------|------|
 | [`docs/context.md`](docs/context.md) | Product one-pager |

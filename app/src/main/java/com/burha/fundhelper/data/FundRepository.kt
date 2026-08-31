@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.measureTimeMillis
 
 data class WatchlistRow(
     val code: String,
@@ -51,6 +52,7 @@ class FundRepository @Inject constructor(
     private val tefas: TefasClient,
     private val clock: Clock,
     private val followBackup: FollowBackup,
+    private val events: AppEventLog,
 ) {
     private var catalogMemory: List<FundSnapshot>? = null
     private val refreshMutex = Mutex()
@@ -87,16 +89,19 @@ class FundRepository @Inject constructor(
 
     suspend fun follow(code: String) {
         followDao.insert(FollowEntity(code))
+        events.append(AppEventLevel.Info, AppEventKind.FollowAdded, detail = code)
         persistBackup()
     }
 
     suspend fun unfollow(code: String) {
         followDao.delete(code)
+        events.append(AppEventLevel.Info, AppEventKind.FollowRemoved, detail = code)
         persistBackup()
     }
 
     suspend fun clearFollows() {
         followDao.deleteAll()
+        events.append(AppEventLevel.Info, AppEventKind.FollowsCleared)
         persistBackup()
     }
 
@@ -108,7 +113,10 @@ class FundRepository @Inject constructor(
             val resolved = codes.mapNotNull { token ->
                 byCode[token.uppercase(Locale.ROOT)]
             }.distinctBy { it.code }
-            if (resolved.isEmpty()) return
+            if (resolved.isEmpty()) {
+                events.append(AppEventLevel.Info, AppEventKind.FollowAll, count = 0)
+                return
+            }
             val now = clock.nowMillis()
             resolved.forEach { fund -> followDao.insert(FollowEntity(fund.code)) }
             val merged = resolved.map { listing ->
@@ -124,6 +132,12 @@ class FundRepository @Inject constructor(
                 ).keepingPriceWindow(previous)
             }
             snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
+            events.append(
+                AppEventLevel.Info,
+                AppEventKind.FollowAll,
+                detail = resolved.joinToString(", ") { it.code },
+                count = resolved.size,
+            )
             persistBackup()
         } catch (_: TefasFetchException) {
             // Unknown-or-failed codes are skipped; do not wipe; do not throw.
@@ -134,11 +148,13 @@ class FundRepository @Inject constructor(
         if (followDao.getCodes().isNotEmpty()) return
         val codes = try {
             FollowBackupCodec.normalize(followBackup.readCodes())
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            events.append(AppEventLevel.Error, AppEventKind.BackupReadFailed, detail = e.message)
             return
         }
         if (codes.isEmpty()) return
         codes.forEach { code -> followDao.insert(FollowEntity(code)) }
+        events.append(AppEventLevel.Info, AppEventKind.BackupRestored, count = codes.size)
         persistBackup()
     }
 
@@ -148,17 +164,30 @@ class FundRepository @Inject constructor(
         return try {
             val catalog = loadCatalog(refetchCatalog)
             val matches = catalog.filter { fund -> matchesQuery(fund, needle) }
-            if (matches.isEmpty()) return SearchOutcome.Success(emptyList())
-            val now = clock.nowMillis()
-            val previousByCode = snapshotDao.getByCodes(matches.map { it.code })
-                .associateBy { it.code }
-            val merged = matches.map { match ->
-                val previous = previousByCode[match.code]?.let(SnapshotMapper::toDomain)
-                match.copy(fetchedAt = now).keepingPriceWindow(previous)
+            val merged = if (matches.isEmpty()) {
+                emptyList()
+            } else {
+                val now = clock.nowMillis()
+                val previousByCode = snapshotDao.getByCodes(matches.map { it.code })
+                    .associateBy { it.code }
+                matches.map { match ->
+                    val previous = previousByCode[match.code]?.let(SnapshotMapper::toDomain)
+                    match.copy(fetchedAt = now).keepingPriceWindow(previous)
+                }.also { snapshotDao.upsertAll(it.map(SnapshotMapper::toEntity)) }
             }
-            snapshotDao.upsertAll(merged.map(SnapshotMapper::toEntity))
+            events.append(
+                AppEventLevel.Info,
+                AppEventKind.SearchOk,
+                detail = needle,
+                count = matches.size,
+            )
             SearchOutcome.Success(merged)
         } catch (e: TefasFetchException) {
+            events.append(
+                AppEventLevel.Error,
+                AppEventKind.SearchFailed,
+                detail = e.message ?: "TEFAS",
+            )
             SearchOutcome.Failure(e.message ?: "TEFAS")
         }
     }
@@ -170,12 +199,32 @@ class FundRepository @Inject constructor(
         val now = clock.nowMillis()
         val cached = lastRefreshResult
         if (!force && cached != null && now - cached.second < FIVE_MINUTES_MS) {
+            events.append(AppEventLevel.Info, AppEventKind.TefasRefreshSkipped)
             return@withLock cached.first
         }
         val result = try {
-            val catalog = tefas.fetchYatCatalog().associateBy { it.code }
-            catalogMemory = catalog.values.toList()
-            val prices = tefas.fetchLatestYatPrices().associateBy { it.code }
+            val catalog = loadCatalog(refetch = true).associateBy { it.code }
+            var prices: Map<String, FundSnapshot> = emptyMap()
+            try {
+                var priceRows: List<FundSnapshot> = emptyList()
+                val durationMs = measureTimeMillis {
+                    priceRows = tefas.fetchLatestYatPrices()
+                }
+                prices = priceRows.associateBy { it.code }
+                events.append(
+                    AppEventLevel.Info,
+                    AppEventKind.TefasPricesOk,
+                    count = priceRows.size,
+                    durationMs = durationMs,
+                )
+            } catch (e: TefasFetchException) {
+                events.append(
+                    AppEventLevel.Error,
+                    AppEventKind.TefasPricesError,
+                    detail = e.message,
+                )
+                throw e
+            }
             val merged = codes.mapNotNull { code ->
                 val listing = catalog[code]
                 val priceRow = prices[code]
@@ -206,15 +255,34 @@ class FundRepository @Inject constructor(
     private suspend fun loadCatalog(refetch: Boolean): List<FundSnapshot> {
         val cached = catalogMemory
         if (!refetch && cached != null) return cached
-        val fresh = tefas.fetchYatCatalog()
-        catalogMemory = fresh
-        return fresh
+        return try {
+            var fresh: List<FundSnapshot> = emptyList()
+            val durationMs = measureTimeMillis {
+                fresh = tefas.fetchYatCatalog()
+            }
+            catalogMemory = fresh
+            events.append(
+                AppEventLevel.Info,
+                AppEventKind.TefasCatalogOk,
+                count = fresh.size,
+                durationMs = durationMs,
+            )
+            fresh
+        } catch (e: TefasFetchException) {
+            events.append(
+                AppEventLevel.Error,
+                AppEventKind.TefasCatalogError,
+                detail = e.message,
+            )
+            throw e
+        }
     }
 
     private suspend fun persistBackup() {
         try {
             followBackup.writeCodes(followDao.getCodes())
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            events.append(AppEventLevel.Error, AppEventKind.BackupWriteFailed, detail = e.message)
             // Room is the live list; a backup miss must not roll back follows.
         }
     }

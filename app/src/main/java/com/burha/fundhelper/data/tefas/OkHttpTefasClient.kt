@@ -55,7 +55,7 @@ class OkHttpTefasClient @Inject constructor(
             http.newCall(request).execute().use { response ->
                 val body = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    throw TefasFetchException("HTTP ${response.code}")
+                    throw TefasFetchException(tefasHttpErrorMessage(response.code, body))
                 }
                 body
             }

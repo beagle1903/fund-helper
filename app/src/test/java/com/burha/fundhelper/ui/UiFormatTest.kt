@@ -18,4 +18,11 @@ class UiFormatTest {
         assertEquals("1.100", formatCount(1100.0))
         assertEquals("5", formatCount(5.0))
     }
+
+    @Test
+    fun log_time_is_hh_mm() {
+        val millis = java.time.LocalDateTime.of(2026, 8, 31, 10, 31)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        assertEquals("10:31", formatLogTime(millis))
+    }
 }

@@ -1,5 +1,6 @@
 package com.burha.fundhelper.ui.search
 
+import com.burha.fundhelper.data.AppEventLog
 import com.burha.fundhelper.data.FundRepository
 import com.burha.fundhelper.data.SearchOutcome
 import com.burha.fundhelper.domain.FundKind
@@ -34,12 +35,14 @@ class ApplySearchCommandTest {
 
     private fun repo(): FundRepository {
         val snapshots = FakeSnapshotDao()
+        val clock = FakeClock()
         return FundRepository(
             FakeFollowDao(snapshots),
             snapshots,
             FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aak.copy(price = 1.0))),
-            FakeClock(),
+            clock,
             FakeFollowBackup(),
+            AppEventLog(clock),
         )
     }
 

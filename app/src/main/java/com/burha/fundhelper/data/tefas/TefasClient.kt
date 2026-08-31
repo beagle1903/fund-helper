@@ -13,6 +13,12 @@ object TefasEndpoints {
 
 class TefasFetchException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+fun tefasHttpErrorMessage(code: Int, body: String): String {
+    val trimmed = body.trimStart()
+    val html = trimmed.startsWith("<") || trimmed.contains("<html", ignoreCase = true)
+    return if (html) "HTTP $code (HTML)" else "HTTP $code"
+}
+
 interface TefasClient {
     suspend fun fetchYatCatalog(): List<FundSnapshot>
     suspend fun fetchLatestYatPrices(): List<FundSnapshot>

@@ -53,7 +53,13 @@ try {
     git diff --cached --quiet
     if ($LASTEXITCODE -ne 0) {
         git commit -m 'docs(wiki): sync Home, Product, Architecture summaries'
+        if ($LASTEXITCODE -ne 0) {
+            throw "git commit failed with exit code $LASTEXITCODE"
+        }
         git push -u origin master
+        if ($LASTEXITCODE -ne 0) {
+            throw "git push failed with exit code $LASTEXITCODE"
+        }
         Write-Host 'Wiki pushed to' $WikiUrl
     } else {
         Write-Host 'Wiki already up to date.'

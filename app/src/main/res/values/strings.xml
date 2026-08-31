@@ -34,4 +34,27 @@
     <string name="return_12m">12 ay</string>
     <string name="return_36m">36 ay</string>
     <string name="return_60m">60 ay</string>
+    <string name="more">Daha fazla</string>
+    <string name="logs_title">Günlük</string>
+    <string name="logs_clear">Temizle</string>
+    <string name="logs_empty_title">Henüz olay yok.</string>
+    <string name="logs_empty_body">Yenileme, arama, takip ve TEFAS çağrıları burada görünür.</string>
+    <string name="logs_level_info">BİLGİ</string>
+    <string name="logs_level_error">HATA</string>
+    <string name="logs_kind_tefas_catalog">TEFAS katalog</string>
+    <string name="logs_kind_tefas_prices">TEFAS fiyat</string>
+    <string name="logs_kind_tefas_refresh">TEFAS yenileme</string>
+    <string name="logs_kind_follow">Takip</string>
+    <string name="logs_kind_reset">Sıfırla</string>
+    <string name="logs_kind_backup">Yedek</string>
+    <string name="logs_kind_search">Arama</string>
+    <string name="logs_ok_detail">OK · %1$s · %2$d fon</string>
+    <string name="logs_refresh_skipped">5 dk</string>
+    <string name="logs_follow_added">%1$s eklendi</string>
+    <string name="logs_follow_removed">%1$s çıkarıldı</string>
+    <string name="logs_follow_all_none">Eşleşen kod yok</string>
+    <string name="logs_follow_all">%1$s eklendi</string>
+    <string name="logs_follows_cleared">Takip listesi silindi</string>
+    <string name="logs_backup_restored">%1$d kod</string>
+    <string name="logs_search_ok">\"%1$s\" · %2$d sonuç</string>
 </resources>

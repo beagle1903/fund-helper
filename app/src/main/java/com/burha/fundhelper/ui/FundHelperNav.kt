@@ -9,6 +9,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.burha.fundhelper.ui.detail.DetailScreen
 import com.burha.fundhelper.ui.detail.DetailViewModel
+import com.burha.fundhelper.ui.logs.LogsScreen
+import com.burha.fundhelper.ui.logs.LogsViewModel
 import com.burha.fundhelper.ui.search.SearchScreen
 import com.burha.fundhelper.ui.search.SearchViewModel
 import com.burha.fundhelper.ui.watchlist.WatchlistScreen
@@ -17,6 +19,7 @@ import com.burha.fundhelper.ui.watchlist.WatchlistViewModel
 object Routes {
     const val WATCHLIST = "watchlist"
     const val SEARCH = "search"
+    const val LOGS = "logs"
     const val DETAIL = "detail/{fundCode}"
     fun detail(code: String) = "detail/$code"
 }
@@ -30,8 +33,13 @@ fun FundHelperNav() {
             WatchlistScreen(
                 viewModel = vm,
                 onSearch = { navController.navigate(Routes.SEARCH) },
+                onLogs = { navController.navigate(Routes.LOGS) },
                 onOpen = { code -> navController.navigate(Routes.detail(code)) },
             )
+        }
+        composable(Routes.LOGS) {
+            val vm: LogsViewModel = hiltViewModel()
+            LogsScreen(viewModel = vm, onBack = { navController.popBackStack() })
         }
         composable(Routes.SEARCH) {
             val vm: SearchViewModel = hiltViewModel()

@@ -40,3 +40,8 @@ fun formatFetchedAt(millis: Long): String {
     val fmt = DateTimeFormatter.ofPattern("d MMM yyyy HH:mm", tr)
     return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(fmt)
 }
+
+fun formatLogTime(millis: Long): String {
+    val fmt = DateTimeFormatter.ofPattern("HH:mm", tr)
+    return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).format(fmt)
+}

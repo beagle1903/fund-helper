@@ -19,11 +19,11 @@ Wireframes of the v1 screens (sample TEFAS-style data, not live prices).
 
 | Takip listesi | Boş liste |
 | --- | --- |
-| ![Takip listesi](https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/watchlist.png) | ![Boş takip listesi](https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/watchlist-empty.png) |
+| <img src="https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/watchlist.png" alt="Takip listesi" width="512"> | <img src="https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/watchlist-empty.png" alt="Boş takip listesi" width="512"> |
 
 | Fon ara | Fon detayı |
 | --- | --- |
-| ![Fon ara](https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/search.png) | ![Fon detayı](https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/detail.png) |
+| <img src="https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/search.png" alt="Fon ara" width="512"> | <img src="https://raw.githubusercontent.com/beagle1903/fund-helper/main/docs/screenshots/detail.png" alt="Fon detayı" width="512"> |
 
 ## Stack
 

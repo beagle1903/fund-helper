@@ -4,12 +4,12 @@
 
 ## Current status
 
-- Günlük is on this branch (`cursor/app-event-log-3149`); watchlist overflow opens it. Session-only in-memory log; snackbar behavior unchanged.
-- Sideload skipped (no A23 / `adb` on this VM).
+- Günlük (PR #24) is on `main` (`fca8e4e`) and sideloaded on the A23 (`:app:installDebug`, `com.burha.fundhelper`). Do **not** uninstall.
+- Session-only in-memory log; snackbar behavior unchanged. Watchlist overflow opens Günlük.
 
 ## Next
 
-- Manual on A23: empty Günlük on fresh launch; airplane-mode refresh shows HATA with HTTP/network detail; **Temizle** clears the list.
+- Manual on the phone: empty Günlük on fresh launch; airplane-mode refresh shows HATA with HTTP/network detail; **Temizle** clears the list.
 
 ## Blockers
 

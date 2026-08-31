@@ -94,7 +94,7 @@ fun LogsScreen(
             ) {
                 items(
                     items = state.events,
-                    key = { it.atMillis.toString() + it.kind.name + it.detail },
+                    key = { it.id },
                 ) { event ->
                     LogRow(event)
                 }

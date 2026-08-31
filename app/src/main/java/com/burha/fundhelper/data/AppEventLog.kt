@@ -27,6 +27,7 @@ enum class AppEventKind {
 }
 
 data class AppEvent(
+    val id: Long,
     val atMillis: Long,
     val level: AppEventLevel,
     val kind: AppEventKind,
@@ -40,6 +41,7 @@ class AppEventLog @Inject constructor(
     private val clock: Clock,
 ) {
     private val _events = MutableStateFlow<List<AppEvent>>(emptyList())
+    private var nextId = 0L
 
     fun observe(): Flow<List<AppEvent>> = _events.asStateFlow()
 
@@ -52,6 +54,7 @@ class AppEventLog @Inject constructor(
         durationMs: Long? = null,
     ) {
         val event = AppEvent(
+            id = ++nextId,
             atMillis = clock.nowMillis(),
             level = level,
             kind = kind,

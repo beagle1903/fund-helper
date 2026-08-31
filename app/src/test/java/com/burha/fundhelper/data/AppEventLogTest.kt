@@ -27,6 +27,27 @@ class AppEventLogTest {
     }
 
     @Test
+    fun append_assigns_distinct_monotonic_ids_even_at_same_millis_and_after_cap() = runTest {
+        val clock = FakeClock(5_000L)
+        val log = AppEventLog(clock)
+        log.append(AppEventLevel.Info, AppEventKind.FollowAdded, detail = "A")
+        log.append(AppEventLevel.Info, AppEventKind.FollowAdded, detail = "B")
+        val sameMillisPair = log.observe().first()
+        assertEquals(2, sameMillisPair.size)
+        assertTrue(sameMillisPair[0].id != sameMillisPair[1].id)
+        assertTrue(sameMillisPair[0].id > sameMillisPair[1].id)
+
+        repeat(100) { i ->
+            log.append(AppEventLevel.Info, AppEventKind.FollowAdded, detail = "C$i")
+        }
+        val capped = log.observe().first()
+        assertEquals(100, capped.size)
+        val ids = capped.map { it.id }
+        assertEquals(ids.size, ids.toSet().size)
+        assertTrue(ids.first() > ids.last())
+    }
+
+    @Test
     fun clear_empties_observers() = runTest {
         val log = AppEventLog(FakeClock())
         log.append(AppEventLevel.Error, AppEventKind.TefasPricesError, detail = "HTTP 403")

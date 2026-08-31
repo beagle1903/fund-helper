@@ -13,7 +13,7 @@ Living technical map. Update this file when the code changes. Dated specs under 
 - Default locale: Turkish
 - `applicationId`: `com.burha.fundhelper`
 
-v1 screens and repository are on `main`. Follow durability (Downloads mirror + `hasFragileUserData`) is a later amendment.
+v1 screens and repository are on `main`, including follow durability (Downloads mirror + `hasFragileUserData`, ADR 006) and Günlük (`AppEventLog`).
 
 ## Module boundaries
 

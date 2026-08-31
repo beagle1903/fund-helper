@@ -4,12 +4,12 @@
 
 ## Current status
 
-- Günlük (PR #24) is on `main` (`fca8e4e`) and sideloaded on the A23 (`:app:installDebug`, `com.burha.fundhelper`). Do **not** uninstall.
-- Session-only in-memory log; snackbar behavior unchanged. Watchlist overflow opens Günlük.
+- Günlük on `main`, sideloaded on the A23 (`:app:installDebug`, `com.burha.fundhelper`). Do **not** uninstall.
+- Issue #26 QA passed on device: empty state (**Henüz olay yok.**); airplane refresh → **HATA** with network detail; snackbar + **Yeniden dene** unchanged; **Temizle**; process kill clears the session log.
 
 ## Next
 
-- Manual on the phone: empty Günlük on fresh launch; airplane-mode refresh shows HATA with HTTP/network detail; **Temizle** clears the list.
+- Contingent #27 only if TEFAS/Akamai blocks the phone. Otherwise Play/later items (#28–#30).
 
 ## Blockers
 

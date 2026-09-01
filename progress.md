@@ -9,7 +9,8 @@
 
 ## Next
 
-- Contingent #27 only if TEFAS/Akamai blocks the phone. Otherwise Play/later items (#28–#30).
+- Contingent #27 only if TEFAS/Akamai blocks the phone.
+- Play listing (#28) and store/SPK copy (#29) are `postponed` (no Play Console fee for now). #30 stays contingent later.
 
 ## Blockers
 

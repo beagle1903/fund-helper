@@ -21,7 +21,16 @@ android {
         testInstrumentationRunner = "com.burha.fundhelper.HiltTestRunner"
     }
 
+    // Instrumented tests run against their own package. AGP uninstalls the tested APK after
+    // connectedAndroidTest; testing `debug` would wipe the sideloaded app's Room data.
+    testBuildType = "instrumented"
+
     buildTypes {
+        create("instrumented") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".test"
+            matchingFallbacks += listOf("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -81,5 +90,4 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

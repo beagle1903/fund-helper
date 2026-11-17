@@ -15,8 +15,12 @@ class FakeTefasClient(
     var catalogCalls: Int = 0
     var priceCalls: Int = 0
 
+    /** Runs inside each catalog call, e.g. to move a FakeClock forward like a slow request. */
+    var onCatalogCall: () -> Unit = {}
+
     override suspend fun fetchYatCatalog(): List<FundSnapshot> {
         catalogCalls += 1
+        onCatalogCall()
         if (catalogHoldMs > 0L) delay(catalogHoldMs)
         if (failCatalog) throw TefasFetchException("catalog failed")
         return catalog

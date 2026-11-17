@@ -637,6 +637,18 @@ class FundRepositoryTest {
     }
 
     @Test
+    fun slow_failure_is_shared_with_the_next_caller() = runTest {
+        val clock = FakeClock(now = 0L)
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakPriced), failCatalog = true)
+        tefas.onCatalogCall = { clock.now += 30_000L }
+        val (repository, _, _) = repo(tefas, clock = clock)
+        repository.follow("AAK")
+        assertTrue(repository.refreshFollowed(force = false).isFailure)
+        assertTrue(repository.refreshFollowed(force = false).isFailure)
+        assertEquals(1, tefas.catalogCalls)
+    }
+
+    @Test
     fun auto_refresh_not_skipped_when_new_code_followed() = runTest {
         val aalPriced = aal.copy(price = 1.5, priceDate = "2026-08-21")
         val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced, aalPriced))

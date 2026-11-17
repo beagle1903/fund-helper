@@ -248,7 +248,9 @@ class FundRepository @Inject constructor(
         } catch (e: TefasFetchException) {
             Result.failure(e)
         }
-        lastRefresh = LastRefresh(result, now, codes.toSet())
+        // Stamp when the refresh finished, not when it started: a slow failure (OkHttp
+        // times out after 30 s) must still be shared with callers queued on the mutex.
+        lastRefresh = LastRefresh(result, clock.nowMillis(), codes.toSet())
         result
     }
 

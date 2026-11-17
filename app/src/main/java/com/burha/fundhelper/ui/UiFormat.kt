@@ -11,7 +11,6 @@ private val tr = Locale.forLanguageTag("tr-TR")
 
 fun periodLabel(period: String?): String = when (period) {
     "1D" -> "1 gün"
-    "1W" -> "1 hafta"
     "1M" -> "1 ay"
     "3M" -> "3 ay"
     "6M" -> "6 ay"

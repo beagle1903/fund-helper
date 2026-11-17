@@ -9,9 +9,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SnapshotDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(entity: SnapshotEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(entities: List<SnapshotEntity>)
 
     @Query("SELECT * FROM snapshots WHERE code = :code")

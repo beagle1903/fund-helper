@@ -26,14 +26,6 @@
     <string name="unfollow">Takipten çıkar</string>
     <string name="back">Geri</string>
     <string name="price_missing">—</string>
-    <string name="return_1d">1 gün</string>
-    <string name="return_1w">1 hafta</string>
-    <string name="return_1m">1 ay</string>
-    <string name="return_3m">3 ay</string>
-    <string name="return_6m">6 ay</string>
-    <string name="return_12m">12 ay</string>
-    <string name="return_36m">36 ay</string>
-    <string name="return_60m">60 ay</string>
     <string name="more">Daha fazla</string>
     <string name="logs_title">Günlük</string>
     <string name="logs_clear">Temizle</string>

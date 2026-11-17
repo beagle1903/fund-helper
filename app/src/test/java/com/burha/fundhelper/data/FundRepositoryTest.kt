@@ -611,4 +611,60 @@ class FundRepositoryTest {
         assertTrue(repository.refreshFollowed(force = false).isSuccess)
         assertEquals(listOf(AppEventKind.TefasRefreshSkipped), events.observe().first().map { it.kind })
     }
+
+    @Test
+    fun auto_refresh_retries_after_failure_once_dedupe_window_passes() = runTest {
+        val clock = FakeClock(now = 0L)
+        val events = AppEventLog(clock)
+        val tefas = FakeTefasClient(catalog = listOf(aak), prices = listOf(aakPriced), failCatalog = true)
+        val (repository, _, _) = repo(tefas, clock = clock, events = events)
+        repository.follow("AAK")
+        assertTrue(repository.refreshFollowed(force = false).isFailure)
+        assertEquals(1, tefas.catalogCalls)
+
+        clock.now = 9_000L
+        assertTrue(repository.refreshFollowed(force = false).isFailure)
+        assertEquals(1, tefas.catalogCalls)
+
+        tefas.failCatalog = false
+        clock.now = 10_000L
+        events.clear()
+        assertTrue(repository.refreshFollowed(force = false).isSuccess)
+        assertEquals(2, tefas.catalogCalls)
+        assertEquals(1, tefas.priceCalls)
+        val kinds = events.observe().first().map { it.kind }
+        assertTrue(AppEventKind.TefasRefreshSkipped !in kinds)
+    }
+
+    @Test
+    fun auto_refresh_not_skipped_when_new_code_followed() = runTest {
+        val aalPriced = aal.copy(price = 1.5, priceDate = "2026-08-21")
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced, aalPriced))
+        val (repository, _, snapshots) = repo(tefas)
+        repository.follow("AAK")
+        repository.refreshFollowed(force = true)
+
+        repository.follow("AAL")
+        assertTrue(repository.refreshFollowed(force = false).isSuccess)
+        assertEquals(2, tefas.catalogCalls)
+        assertEquals(2, tefas.priceCalls)
+        assertEquals(1.5, snapshots.get("AAL")?.price)
+
+        assertTrue(repository.refreshFollowed(force = false).isSuccess)
+        assertEquals(2, tefas.catalogCalls)
+    }
+
+    @Test
+    fun auto_refresh_still_skips_after_unfollow() = runTest {
+        val aalPriced = aal.copy(price = 1.5, priceDate = "2026-08-21")
+        val tefas = FakeTefasClient(catalog = listOf(aak, aal), prices = listOf(aakPriced, aalPriced))
+        val (repository, _, _) = repo(tefas)
+        repository.follow("AAK")
+        repository.follow("AAL")
+        repository.refreshFollowed(force = true)
+
+        repository.unfollow("AAL")
+        assertTrue(repository.refreshFollowed(force = false).isSuccess)
+        assertEquals(1, tefas.catalogCalls)
+    }
 }

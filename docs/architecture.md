@@ -45,7 +45,7 @@ The HTTP library (OkHttp or Ktor) lives only inside `TefasClient`. Choose it at 
 
 1. Search **Ara** classifies the query (`parseSearchCommand`). Text search asks the repository; the repository calls `TefasClient` (and may cache results). Reset and bulk follow call `clearFollows` / `followAll`, then pop to the watchlist.
 2. Follow/unfollow writes Room, then mirrors codes to `FollowBackup`. `followAll` does one backup write for the resolved set. `clearFollows` deletes all Room follows, then writes an empty backup.
-3. Watchlist and detail read Room first, then refresh **followed funds only** (serialized in `FundRepository`; five-minute skip after a success). On launch / refresh, if Room follows are empty, restore codes from the Downloads file.
+3. Watchlist and detail read Room first, then refresh **followed funds only** (serialized in `FundRepository`). An unforced refresh is skipped for five minutes after a success that covered every currently followed code; following a new fund ends the skip. A failure is shared only with callers inside the next ten seconds, then TEFAS is tried again. On launch / refresh, if Room follows are empty, restore codes from the Downloads file.
 4. Detail runs `ExplanationMapper` on official fields already in the snapshot.
 5. On HTTP failure: keep Room data, surface a snackbar + retry. Do not delete follows.
 6. APK update with `:app:installDebug` (same as `adb install -r`) keeps Room. Uninstall deletes Room; Settings uninstall may prompt to keep it (`hasFragileUserData`). The Downloads file is the on-machine copy. Pull requests and pushes to `main` run `:app:testDebugUnitTest` on GitHub Actions (no live TEFAS, no emulator).

@@ -57,6 +57,7 @@ The HTTP library is OkHttp. It lives only inside `OkHttpTefasClient` (the `Tefas
 - Backup write failure after RESET: Room stays empty; a stale Downloads file can restore the list immediately on pop (WatchlistViewModel init / refresh), not only on a later launch.
 - Backup file unreadable: watchlist stays empty; Room is not wiped.
 - Tests use a fake `TefasClient` and a fake `FollowBackup`. Do not hit the live site from unit tests.
+- Instrumented tests (`app/src/androidTest`, `:app:connectedInstrumentedAndroidTest`) run under `HiltTestRunner`. `TestAppModule` (`@TestInstallIn`) replaces `AppModule` + `TefasModule` with in-memory Room, a fake TEFAS client and a fake backup. `testBuildType = "instrumented"` (debug copy, `applicationId` `com.burha.fundhelper.test`) because AGP uninstalls the tested APK after the run; testing `debug` would uninstall the sideloaded `com.burha.fundhelper` and its Room data. Needs an emulator or device; not run in CI.
 
 ## Out of this map (later)
 

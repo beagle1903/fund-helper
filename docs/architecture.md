@@ -39,7 +39,7 @@ LogsScreen → LogsViewModel → AppEventLog
 - **AppEventLog:** in-memory ring buffer (cap 100, newest first). `FundRepository` is the only writer. Process death clears it.
 - **sortByHeadlineReturn:** pure function. Ascending headline `%`, missing last, code tiebreak. Not advice.
 
-The HTTP library (OkHttp or Ktor) lives only inside `TefasClient`. Choose it at implementation time via current docs (Context7). Do not import it from UI.
+The HTTP library is OkHttp. It lives only inside `OkHttpTefasClient` (the `TefasClient` implementation). Do not import it from UI.
 
 ## Data flow
 

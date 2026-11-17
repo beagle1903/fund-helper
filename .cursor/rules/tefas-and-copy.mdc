@@ -19,7 +19,7 @@ alwaysApply: false
 "Bu fonu alın; düşük riskli ve getirisi yüksek."
 
 // ✅ GOOD
-"Fonun resmi türü hisse senedi fonu. Risk değeri TEFAS kaydındaki skorudur. Bu açıklama yatırım tavsiyesi değildir."
+"Fonun resmi türü hisse senedi fonu. Risk değeri TEFAS kaydındaki skorudur: 4."
 ```
 
 No buy/sell, no target price, no “size uygun”, no holdings/TL. If a field is missing, say so — do not invent it.

@@ -16,10 +16,6 @@ class FakeSnapshotDao : SnapshotDao {
 
     fun observeAll(): Flow<Map<String, SnapshotEntity>> = rows
 
-    override suspend fun upsert(entity: SnapshotEntity) {
-        rows.value = rows.value + (entity.code to entity)
-    }
-
     override suspend fun upsertAll(entities: List<SnapshotEntity>) {
         rows.value = rows.value + entities.associateBy { it.code }
     }

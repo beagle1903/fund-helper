@@ -56,7 +56,7 @@ class FundRepository @Inject constructor(
 ) {
     private var catalogMemory: List<FundSnapshot>? = null
     private val refreshMutex = Mutex()
-    @Volatile private var lastRefreshResult: Pair<Result<Unit>, Long>? = null
+    @Volatile private var lastRefresh: LastRefresh? = null
 
     fun observeWatchlist(): Flow<List<WatchlistRow>> = followDao.observeFollowed().map { rows ->
         rows.map { followed ->
@@ -197,10 +197,10 @@ class FundRepository @Inject constructor(
         val codes = followDao.getCodes()
         if (codes.isEmpty()) return@withLock Result.success(Unit)
         val now = clock.nowMillis()
-        val cached = lastRefreshResult
-        if (!force && cached != null && now - cached.second < FIVE_MINUTES_MS) {
+        val cached = lastRefresh
+        if (!force && cached != null && cached.covers(codes, now)) {
             events.append(AppEventLevel.Info, AppEventKind.TefasRefreshSkipped)
-            return@withLock cached.first
+            return@withLock cached.result
         }
         val result = try {
             val catalog = loadCatalog(refetch = true).associateBy { it.code }
@@ -248,8 +248,30 @@ class FundRepository @Inject constructor(
         } catch (e: TefasFetchException) {
             Result.failure(e)
         }
-        lastRefreshResult = result to now
+        // Stamp when the refresh finished, not when it started: a slow failure (OkHttp
+        // times out after 30 s) must still be shared with callers queued on the mutex.
+        lastRefresh = LastRefresh(result, clock.nowMillis(), codes.toSet())
         result
+    }
+
+    private class LastRefresh(
+        val result: Result<Unit>,
+        val atMillis: Long,
+        val codes: Set<String>,
+    ) {
+        /**
+         * A success stands in for five minutes, but only for the codes it fetched, so a fund
+         * followed since then still gets its price. A failure stands in only long enough for
+         * overlapping callers to share it; after that the next caller tries TEFAS again.
+         */
+        fun covers(followed: List<String>, now: Long): Boolean {
+            val age = now - atMillis
+            return if (result.isSuccess) {
+                age < FIVE_MINUTES_MS && codes.containsAll(followed)
+            } else {
+                age < FAILURE_DEDUPE_MS
+            }
+        }
     }
 
     private suspend fun loadCatalog(refetch: Boolean): List<FundSnapshot> {
@@ -296,6 +318,7 @@ class FundRepository @Inject constructor(
 
     private companion object {
         const val FIVE_MINUTES_MS = 5 * 60 * 1000L
+        const val FAILURE_DEDUPE_MS = 10 * 1000L
     }
 }
 
